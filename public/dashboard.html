@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - U-Pay</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      /* --- ការកំណត់ទូទៅ (General Styles) --- */
+      body {
+        background-color: #f2f4f6;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      /* [ថែម] កំណត់ Font ពេលជាភាសាខ្មែរ */
+      body.kh-font {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+      body.kh-font h1,
+      body.kh-font h2,
+      body.kh-font h3,
+      body.kh-font h4,
+      body.kh-font p,
+      body.kh-font span,
+      body.kh-font div,
+      body.kh-font button {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+      /* ការពារ Icon កុំឱ្យបាត់រូប */
+      body.kh-font .fa,
+      body.kh-font .fas,
+      body.kh-font .fa-solid {
+        font-family: "Font Awesome 6 Free" !important;
+        font-weight: 900 !important;
+      }
+
+      /* ប្រអប់ទូរស័ព្ទ (Mobile Container) */
+      .app-container {
+        max-width: 450px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* --- ផ្នែកខាងលើ (Header & Profile) --- */
+      .refresh-btn {
+        background: none;
+        border: none;
+        color: #004d40;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-right: 10px;
+      }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      /* --- ម៉ូតកាតធនាគារ (Credit Card) --- */
+      .credit-card {
+        /* ដាក់ពណ៌ Gradient ភ្លឺ (ប្រផេះ-ទឹកប្រាក់) ដើម្បីឱ្យ Logo ឃើញច្បាស់ */
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333; /* អក្សរពណ៌ខ្មៅ */
+        /* ចំណាំ: Style ផ្សេងៗដូចជា padding/border-radius មាននៅក្នុង css/style.css ហើយ */
+      }
+
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Logo U-Pay (ធានាថាអត់មាន Background) */
+      .card-logo-img {
+        height: 60px;
+        width: auto;
+        object-fit: contain;
+        background: none !important;
+      }
+
+      /* Logo VISA (ពណ៌ស្តង់ដា) */
+      .visa-logo-img {
+        height: 22px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      /* ពណ៌អក្សរលើកាត */
+      .card-label,
+      .card-number {
+        color: #555;
+      }
+      .card-balance {
+        color: #000;
+      }
+      .card-chip {
+        width: 50px;
+        height: 35px;
+        background: linear-gradient(
+          135deg,
+          #d4af37 0%,
+          #fbe89e 50%,
+          #d4af37 100%
+        );
+        border-radius: 6px;
+        border: 1px solid #b8860b;
+      }
+
+      /* --- [ថែម] ពណ៌ MENU ICON (Color Icons) --- */
+      .icon-box {
+        /* ថែម CSS នេះដើម្បីឱ្យមានពណ៌ Background */
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 5px; /* គម្លាត់ពី icon ទៅអក្សរ */
+      }
+      /* កូដពណ៌សម្រាប់ Icon នីមួយៗ */
+      .icon-transfer {
+        background: #e0f2f1;
+        color: #00695c;
+      } /* បៃតង */
+      .icon-scan {
+        background: #e3f2fd;
+        color: #1565c0;
+      } /* ខៀវ */
+      .icon-payment {
+        background: #fff3e0;
+        color: #e65100;
+      } /* ទឹកក្រូច */
+      .icon-setting {
+        background: #f3e5f5;
+        color: #7b1fa2;
+      } /* ស្វាយ */
+
+      /* --- ម៉ូតបញ្ជីប្រតិបត្តិការ (Transactions) --- */
+      .trans-icon.inbound {
+        background: #e6fffa;
+        color: #00b894;
+      }
+      .trans-icon.outbound {
+        background: #fff5f5;
+        color: #e71d36;
+      }
+      .trans-amount.positive {
+        color: #00b894;
+      }
+      .trans-amount.negative {
+        color: #e71d36;
+      }
+
+      /* --- ម៉ូតវិក្កយបត្រ (Slip Modal) --- */
+      .slip-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 3000;
+        overflow-y: auto;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .slip-container {
+        width: 320px;
+        background: white;
+        margin: 0 auto;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      }
+      .slip-header {
+        background: #004d40;
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+      }
+      .slip-icon-circle {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 1.5rem;
+        color: #004d40;
+      }
+      .slip-amount {
+        font-size: 2.8rem;
+        font-weight: bold;
+        margin: 10px 0;
+        letter-spacing: -1px;
+      }
+      .slip-body {
+        padding: 20px 25px;
+        background: white;
+        color: #333;
+      }
+
+      .trx-row {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .trx-val {
+        font-weight: bold;
+        font-family: monospace;
+      }
+
+      /* បន្ទាត់ដាច់ៗ (Dashed Line) */
+      .dashed-line {
+        border-top: 2px dashed #ccc;
+        margin: 20px -25px;
+        position: relative;
+      }
+      .dashed-line::before,
+      .dashed-line::after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        width: 20px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.85);
+        border-radius: 50%;
+      }
+      .dashed-line::before {
+        left: -10px;
+      }
+      .dashed-line::after {
+        right: -10px;
+      }
+
+      .slip-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        align-items: center;
+      }
+      .slip-val {
+        font-weight: 600;
+        color: #333;
+        text-align: right;
+        max-width: 180px;
+        word-wrap: break-word;
+      }
+
+      .slip-footer {
+        background: white;
+        padding: 20px;
+        text-align: center;
+        border-top: 2px dashed #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- ប៊ូតុងក្នុង Slip (Save/Close) --- */
+      .action-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 25px;
+      }
+      .btn-save {
+        background: white;
+        color: #004d40;
+        padding: 12px 25px;
+        border-radius: 30px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+      .btn-close {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      /* --- Modal ផ្សេងៗ (Logout) --- */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+      }
+      .modal-content {
+        background: white;
+        margin: 40% auto;
+        padding: 25px;
+        width: 85%;
+        border-radius: 15px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="top-bar">
+        <div class="profile-section">
+          <div class="avatar" id="avatarBox">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="greeting">
+            <p id="greetingText" data-i18n="greeting_morning">Welcome back,</p>
+            <h3 id="userNameDisplay">Loading...</h3>
+          </div>
+        </div>
+        <div>
+          <button onclick="fetchLatestData()" class="refresh-btn">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+          <button
+            onclick="
+              document.getElementById('logoutModal').style.display = 'block'
+            "
+            class="logout-icon-btn"
+          >
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="credit-card">
+        <div class="card-top">
+          <span class="card-chip"></span>
+          <img
+            src="images/logo-removebg.png"
+            class="card-logo-img"
+            alt="U-Pay"
+          />
+        </div>
+        <div class="card-body">
+          <p class="card-label" data-i18n="total_balance">Total Balance</p>
+          <h1 class="card-balance">$<span id="balanceDisplay">0.00</span></h1>
+        </div>
+        <div class="card-footer">
+          <p class="card-number" id="accountDisplay">...</p>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+            class="visa-logo-img"
+            alt="VISA"
+          />
+        </div>
+      </div>
+
+      <div class="menu-grid">
+        <button
+          class="menu-item"
+          onclick="window.location.href = 'transfer.html'"
+        >
+          <div class="icon-box icon-transfer">
+            <i class="fa-solid fa-money-bill-transfer"></i>
+          </div>
+          <span data-i18n="btn_transfer">Transfers</span>
+        </button>
+        <button class="menu-item" onclick="window.location.href = 'scan.html'">
+          <div class="icon-box icon-scan">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <span data-i18n="btn_scan">Scan QR</span>
+        </button>
+        <button
+          class="menu-item"
+          onclick="window.location.href = 'payment.html'"
+        >
+          <div class="icon-box icon-payment">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <span data-i18n="btn_payment">Payments</span>
+        </button>
+        <button
+          class="menu-item"
+          onclick="window.location.href = 'settings.html'"
+        >
+          <div class="icon-box icon-setting">
+            <i class="fa-solid fa-gear"></i>
+          </div>
+          <span data-i18n="nav_setting">Settings</span>
+        </button>
+      </div>
+
+      <div class="recent-section">
+        <h4 data-i18n="recent_trx">Recent Transactions</h4>
+        <div class="transaction-list" id="transactionList"></div>
+      </div>
+    </div>
+
+    <div id="slipModal" class="slip-modal">
+      <div id="captureArea" class="slip-container">
+        <div class="slip-header">
+          <div class="slip-icon-circle">
+            <i id="slipIcon" class="fa-solid fa-arrow-up"></i>
+          </div>
+          <div style="font-weight: bold; font-size: 1.1rem" id="slipTitle">
+            Transaction Details
+          </div>
+          <div class="slip-amount" id="slipAmount">$0.00</div>
+        </div>
+
+        <div class="slip-body">
+          <div class="trx-row">
+            <span class="slip-label">Transaction ID</span
+            ><span class="trx-val" id="slipRef">...</span>
+          </div>
+          <div class="dashed-line"></div>
+          <div class="slip-row">
+            <span class="slip-label" id="lbl1">Source</span
+            ><span class="slip-val" id="slipSender">...</span>
+          </div>
+          <div class="slip-row">
+            <span class="slip-label" id="lbl2">Destination</span
+            ><span class="slip-val" id="slipReceiver">...</span>
+          </div>
+          <div class="slip-row">
+            <span class="slip-label">Partner Account</span
+            ><span class="slip-val" id="slipPartnerAcc">...</span>
+          </div>
+          <div class="slip-row">
+            <span class="slip-label">Date</span
+            ><span class="slip-val" id="slipDate">...</span>
+          </div>
+          <div class="slip-row">
+            <span class="slip-label">Remark</span
+            ><span class="slip-val" id="slipRemark">...</span>
+          </div>
+        </div>
+
+        <div class="slip-footer">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VerifyTransaction"
+              style="
+                width: 55px;
+                border: 1px solid #eee;
+                padding: 2px;
+                border-radius: 5px;
+              "
+            />
+            <div style="text-align: left; line-height: 1.2">
+              <span
+                style="
+                  display: block;
+                  font-size: 0.65rem;
+                  color: #999;
+                  text-transform: uppercase;
+                "
+                >Scan to check</span
+              >
+              <span
+                style="
+                  display: block;
+                  font-size: 0.85rem;
+                  font-weight: bold;
+                  color: #004d40;
+                "
+                >U-Pay Secure</span
+              >
+            </div>
+          </div>
+          <div>
+            <img src="images/logo.png" style="width: 80px; opacity: 0.9" />
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button onclick="saveSlipImage()" class="btn-save">
+          <i class="fa-solid fa-download"></i> Save
+        </button>
+        <button
+          onclick="document.getElementById('slipModal').style.display = 'none'"
+          class="btn-close"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <h3 data-i18n="modal_logout_title">Confirm Logout</h3>
+        <div style="margin-top: 20px">
+          <button
+            onclick="
+              document.getElementById('logoutModal').style.display = 'none'
+            "
+            style="
+              background: #eee;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 5px;
+              margin-right: 10px;
+            "
+            data-i18n="btn_cancel"
+          >
+            Cancel
+          </button>
+          <button
+            onclick="
+              localStorage.removeItem('user');
+              window.location.href = 'index.html';
+            "
+            style="
+              background: #e71d36;
+              color: white;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 5px;
+            "
+            data-i18n="btn_yes_logout"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/lang.js"></script>
+
+    <script>
+      // 1. ពិនិត្យថាមាន User Login ឬនៅ?
+      const localUserStr = localStorage.getItem("user");
+      if (!localUserStr) window.location.href = "index.html";
+
+      let currentUser = JSON.parse(localUserStr);
+      updateUI(currentUser); // បង្ហាញទិន្នន័យពី LocalStorage សិន
+      fetchLatestData(); // ទាញទិន្នន័យថ្មីពី Server
+
+      // [ថែម] Update Greeting Time
+      updateGreetingTime();
+
+      function updateGreetingTime() {
+        const hour = new Date().getHours();
+        let key = "greeting_morning";
+        if (hour >= 12 && hour < 18) key = "greeting_afternoon";
+        else if (hour >= 18) key = "greeting_evening";
+        document.getElementById("greetingText").setAttribute("data-i18n", key);
+        if (typeof applyLanguage === "function") applyLanguage();
+      }
+
+      // Function ទាញទិន្នន័យចុងក្រោយ
+      async function fetchLatestData() {
+        try {
+          const res = await fetch("/api/users");
+          const allUsers = await res.json();
+          const freshUser = allUsers.find((u) => u.id === currentUser.id);
+          if (freshUser) {
+            localStorage.setItem("user", JSON.stringify(freshUser));
+            currentUser = freshUser;
+            updateUI(currentUser);
+          }
+        } catch (e) {
+          console.log("Offline mode - using local data");
+        }
+      }
+
+      // Function បង្ហាញទិន្នន័យលើអេក្រង់ (Update UI)
+      function updateUI(user) {
+        document.getElementById("userNameDisplay").textContent = user.username;
+        document.getElementById("balanceDisplay").textContent =
+          user.balance.toFixed(2);
+        // កាត់លេខកាតជា 3 ខ្ទង់ដកឃ្លា
+        document.getElementById("accountDisplay").textContent = (
+          user.accountNumber || ""
+        ).replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
+
+        // បង្ហាញរូប Profile
+        document.getElementById("avatarBox").innerHTML = user.profileImage
+          ? `<img src="${user.profileImage}">`
+          : `<i class="fa-solid fa-user"></i>`;
+
+        // បង្ហាញ Transaction List
+        const container = document.getElementById("transactionList");
+        container.innerHTML = "";
+
+        if (!user.transactions || user.transactions.length === 0) {
+          container.innerHTML =
+            '<p style="text-align:center; color:#aaa; padding:20px;" data-i18n="no_trx">No transactions yet.</p>';
+          if (typeof applyLanguage === "function") applyLanguage();
+          return;
+        }
+
+        // Loop បង្ហាញ Transaction នីមួយៗ
+        const lang = localStorage.getItem("lang") || "en";
+
+        user.transactions.forEach((t) => {
+          const item = document.createElement("div");
+          item.className = "trans-item";
+          const dataStr = JSON.stringify(t).replace(/"/g, "&quot;");
+          const isPositive = t.amount > 0;
+
+          // [ថែម] Logic បកប្រែប្រភេទប្រតិបត្តិការ
+          let displayTitle = t.type;
+          if (lang === "kh") {
+            if (t.type === "Transfer Out") displayTitle = "ផ្ទេរប្រាក់ចេញ";
+            else if (t.type === "Transfer In" || t.type === "Received")
+              displayTitle = "ទទួលបានប្រាក់";
+            else if (t.type === "Bill Payment") displayTitle = "បង់វិក្កយបត្រ";
+          }
+
+          item.innerHTML = `
+                    <div class="trans-icon ${isPositive ? "inbound" : "outbound"}" onclick="openHistorySlip(${dataStr})">
+                        <i class="fa-solid ${isPositive ? "fa-arrow-down" : "fa-arrow-up"}"></i>
+                    </div>
+                    <div class="trans-info" onclick="openHistorySlip(${dataStr})">
+                        <p class="trans-title">${displayTitle}</p>
+                        <div class="trans-date">${t.date}<br>${t.partner}</div>
+                    </div>
+                    <div class="trans-amount ${isPositive ? "positive" : "negative"}">
+                        ${isPositive ? "+" : ""}$${Math.abs(t.amount).toFixed(2)}
+                    </div>`;
+          container.appendChild(item);
+        });
+      }
+
+      // Function បើកមើល Slip របស់ប្រតិបត្តិការចាស់ៗ
+      function openHistorySlip(t) {
+        document.getElementById("slipAmount").textContent =
+          "$" + Math.abs(t.amount).toFixed(2);
+        document.getElementById("slipDate").textContent = t.date;
+        document.getElementById("slipRef").textContent = t.refId || "N/A";
+        document.getElementById("slipRemark").textContent = t.remark || "-";
+
+        let senderName, receiverName, partnerAcc;
+        const icon = document.getElementById("slipIcon");
+        const title = document.getElementById("slipTitle");
+
+        // ពិនិត្យថាជាការចំណាយ (ដកលុយ) ឬ ចំណូល (ចូលលុយ)
+        if (t.amount < 0) {
+          senderName = currentUser.username;
+          receiverName = t.partner;
+          partnerAcc = t.partnerAcc || "N/A";
+          icon.className = "fa-solid fa-arrow-up";
+          title.textContent = "Transfer Successful";
+          document.getElementById("lbl1").textContent = "From";
+          document.getElementById("lbl2").textContent = "To";
+        } else {
+          senderName = t.partner;
+          receiverName = currentUser.username;
+          partnerAcc = "My Account";
+          icon.className = "fa-solid fa-arrow-down";
+          title.textContent = "Transfer Received";
+          document.getElementById("lbl1").textContent = "From";
+          document.getElementById("lbl2").textContent = "To";
+        }
+
+        document.getElementById("slipSender").textContent = senderName;
+        document.getElementById("slipReceiver").textContent = receiverName;
+        document.getElementById("slipPartnerAcc").textContent = partnerAcc;
+        document.getElementById("slipModal").style.display = "flex";
+      }
+
+      // Function Save រូប Slip
+      function saveSlipImage() {
+        html2canvas(document.getElementById("captureArea"), { scale: 2 }).then(
+          (canvas) => {
+            const link = document.createElement("a");
+            link.download = "History-Slip.png";
+            link.href = canvas.toDataURL();
+            link.click();
+          },
+        );
+      }
+    </script>
+  </body>
+</html>

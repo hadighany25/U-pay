@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - U-Pay</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #f4f6f8;
+      }
+
+      /* Font Logic */
+      .kh-text {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+
+      /* --- ANIMATIONS --- */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideInRight {
+        from {
+          transform: translateX(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes popUp {
+        0% {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .animate-fade {
+        animation: fadeIn 0.6s ease-out forwards;
+      }
+      .animate-delay-1 {
+        animation-delay: 0.1s;
+      }
+      .animate-delay-2 {
+        animation-delay: 0.2s;
+      }
+      .animate-delay-3 {
+        animation-delay: 0.3s;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        background: linear-gradient(180deg, #004d40 0%, #00251a 100%);
+        color: white;
+        position: fixed;
+        height: 100%;
+        top: 0;
+        left: 0;
+        padding-top: 20px;
+        z-index: 100;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+      }
+      .sidebar h2 {
+        text-align: center;
+        margin-bottom: 40px;
+        letter-spacing: 1px;
+        font-weight: 700;
+      }
+      .sidebar a {
+        padding: 15px 25px;
+        display: block;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: 0.3s;
+        font-size: 1.05rem;
+        border-left: 4px solid transparent;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-left: 4px solid #00b894;
+      }
+      .sidebar a i {
+        margin-right: 15px;
+        width: 25px;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 250px;
+        padding: 30px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        color: #333;
+        margin: 0;
+        font-weight: 700;
+      }
+
+      .logout-btn {
+        background: #fff;
+        color: #e71d36;
+        border: 1px solid #e71d36;
+        padding: 10px 25px;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: bold;
+      }
+      .logout-btn:hover {
+        background: #e71d36;
+        color: white;
+        box-shadow: 0 4px 12px rgba(231, 29, 54, 0.3);
+      }
+
+      /* Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+        cursor: default;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .card-icon {
+        width: 65px;
+        height: 65px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+      }
+      .c-blue {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+      }
+      .c-green {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+      }
+      .c-orange {
+        background: linear-gradient(135deg, #fd7e14, #d35400);
+        box-shadow: 0 4px 10px rgba(253, 126, 20, 0.3);
+      }
+
+      .card-info h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: #333;
+        font-weight: 800;
+      }
+      .card-info p {
+        margin: 5px 0 0;
+        color: #888;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Search Box */
+      .search-box {
+        background: white;
+        padding: 15px 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        display: flex;
+        gap: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+        transition: 0.3s;
+      }
+      .search-box:focus-within {
+        border-color: #00b894;
+        box-shadow: 0 5px 20px rgba(0, 184, 148, 0.1);
+      }
+
+      .search-input {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        font-size: 1.05rem;
+        outline: none;
+        background: transparent;
+      }
+      .btn-search {
+        background: #004d40;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-search:hover {
+        background: #00382e;
+        transform: scale(1.05);
+      }
+
+      /* Table */
+      .table-container {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      .table-header h2 {
+        margin: 0;
+        color: #444;
+      }
+
+      .btn-print {
+        background: #fff;
+        color: #00695c;
+        border: 2px solid #00695c;
+        padding: 8px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+      .btn-print:hover {
+        background: #00695c;
+        color: white;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        background: #f8f9fa;
+        color: #666;
+        font-weight: 600;
+        padding: 15px;
+        text-align: left;
+        border-bottom: 2px solid #eee;
+      }
+      td {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        transition: 0.2s;
+      }
+      tr {
+        transition: 0.2s;
+      }
+      tr:hover {
+        background-color: #fafffe;
+        transform: scale(1.005);
+      }
+
+      .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      /* MODALS */
+      .slip-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s;
+      }
+
+      .slip-box {
+        background: white;
+        width: 350px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+        animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      /* DETAILS MODAL STYLE */
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+      }
+      .detail-label {
+        color: #888;
+        font-size: 0.9rem;
+      }
+      .detail-val {
+        font-weight: 600;
+        color: #333;
+        text-align: right;
+      }
+      .divider {
+        height: 1px;
+        background: #eee;
+        margin: 15px 0;
+      }
+      .section-title {
+        font-size: 0.85rem;
+        color: #aaa;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        margin-top: 5px;
+        letter-spacing: 1px;
+      }
+
+      @media print {
+        .sidebar,
+        .logout-btn,
+        .btn-print,
+        .action-btn,
+        .search-box {
+          display: none !important;
+        }
+        .main-content {
+          margin: 0;
+          padding: 0;
+        }
+        .card {
+          border: 1px solid #ddd;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <h2><i class="fa-solid fa-shield-halved"></i> U-PAY ADMIN</h2>
+      <a href="#" class="active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a href="#"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="#"
+        ><i class="fa-solid fa-money-bill-transfer"></i> Transactions</a
+      >
+    </div>
+
+    <div class="main-content">
+      <div class="header animate-fade">
+        <h1>Overview</h1>
+        <button
+          class="logout-btn"
+          onclick="window.location.href = 'index.html'"
+        >
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+
+      <div class="stats-grid animate-fade animate-delay-1">
+        <div class="card">
+          <div class="card-icon c-blue"><i class="fa-solid fa-users"></i></div>
+          <div class="card-info">
+            <h3 id="totalUsers">0</h3>
+            <p>Total Users</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon c-green">
+            <i class="fa-solid fa-sack-dollar"></i>
+          </div>
+          <div class="card-info">
+            <h3 id="totalMoney">$0.00</h3>
+            <p>System Balance</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon c-orange"><i class="fa-solid fa-list"></i></div>
+          <div class="card-info">
+            <h3 id="totalTrx">0</h3>
+            <p>Transactions</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-box animate-fade animate-delay-2">
+        <i
+          class="fa-solid fa-magnifying-glass"
+          style="color: #999; align-self: center"
+        ></i>
+        <input
+          type="text"
+          id="trxSearchInput"
+          class="search-input"
+          placeholder="Search Transaction ID (e.g. TRX...)"
+        />
+        <button onclick="searchTransaction()" class="btn-search">
+          Search Details
+        </button>
+      </div>
+
+      <div class="table-container animate-fade animate-delay-3">
+        <div class="table-header">
+          <h2>Recent Transactions</h2>
+          <button class="btn-print" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> Print Report
+          </button>
+        </div>
+        <table id="trxTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Sender</th>
+              <th>Receiver/Type</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="slipModal" class="slip-overlay">
+      <div class="slip-box">
+        <div id="captureArea" style="background: white">
+          <div
+            style="
+              background: #004d40;
+              padding: 25px;
+              color: white;
+              text-align: center;
+            "
+          >
+            <h2 style="margin: 0">U-PAY</h2>
+            <p style="margin: 5px 0 0 0; opacity: 0.8; font-size: 0.9rem">
+              Transaction Slip
+            </p>
+          </div>
+          <div style="padding: 30px; text-align: left; color: #333">
+            <div style="text-align: center; margin-bottom: 25px">
+              <h1
+                style="margin: 0; font-size: 2.2rem; color: #004d40"
+                id="slipAmount"
+              >
+                $0.00
+              </h1>
+              <span
+                class="status-badge success"
+                style="margin-top: 10px; display: inline-block"
+                >COMPLETED</span
+              >
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-label">Ref ID</span
+              ><span class="detail-val" id="slipRef">...</span>
+            </div>
+            <div class="divider"></div>
+            <div class="detail-row">
+              <span class="detail-label">From</span
+              ><span class="detail-val" id="slipSender">...</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">To/Type</span
+              ><span class="detail-val" id="slipReceiver">...</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Date</span
+              ><span class="detail-val" id="slipDate">...</span>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px">
+              <img src="images/logo.png" style="height: 35px; opacity: 0.6" />
+            </div>
+          </div>
+        </div>
+        <div
+          style="
+            text-align: center;
+            padding: 0 20px 20px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+          "
+        >
+          <button class="btn-print" style="flex: 1" onclick="downloadSlip()">
+            <i class="fa-solid fa-download"></i> Save
+          </button>
+          <button
+            onclick="
+              document.getElementById('slipModal').style.display = 'none'
+            "
+            style="
+              flex: 1;
+              background: #f0f0f0;
+              border: none;
+              padding: 10px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: bold;
+              color: #555;
+            "
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="trxResultModal" class="slip-overlay">
+      <div class="slip-box" style="width: 450px">
+        <div
+          style="
+            background: #fff;
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <h3
+            style="
+              margin: 0;
+              color: #004d40;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <i class="fa-solid fa-file-invoice"></i> Transaction Details
+          </h3>
+          <div
+            style="
+              background: #f0f0f0;
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+            "
+            onclick="
+              document.getElementById('trxResultModal').style.display = 'none'
+            "
+          >
+            <i class="fa-solid fa-xmark" style="color: #555"></i>
+          </div>
+        </div>
+
+        <div id="trxResultContent" style="padding: 0"></div>
+
+        <div style="padding: 20px; background: #f9f9f9; text-align: center">
+          <button
+            onclick="
+              document.getElementById('trxResultModal').style.display = 'none'
+            "
+            style="
+              background: white;
+              border: 1px solid #ddd;
+              padding: 10px 40px;
+              border-radius: 25px;
+              cursor: pointer;
+              font-weight: bold;
+              color: #555;
+              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            "
+          >
+            Close Details
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let allUsers = [];
+      let allTrx = [];
+
+      async function loadData() {
+        try {
+          const res = await fetch("/api/users");
+          allUsers = await res.json();
+          processData();
+        } catch (err) {
+          console.error("Using local data");
+          allUsers = [];
+          processData();
+        }
+      }
+
+      function processData() {
+        let totalBalance = 0;
+        allTrx = [];
+        allUsers.forEach((u) => {
+          totalBalance += parseFloat(u.balance || 0);
+          if (u.transactions) {
+            const userTrx = u.transactions.map((t) => ({
+              ...t,
+              sender: u.username,
+              senderAcc: u.accountNumber,
+            }));
+            allTrx = [...allTrx, ...userTrx];
+          }
+        });
+        document.getElementById("totalUsers").innerText = allUsers.length;
+        document.getElementById("totalMoney").innerText =
+          "$ " + totalBalance.toFixed(2);
+        document.getElementById("totalTrx").innerText = allTrx.length;
+        renderTable();
+      }
+
+      function renderTable() {
+        allTrx.sort((a, b) => new Date(b.date) - new Date(a.date));
+        const tbody = document.getElementById("tableBody");
+        if (allTrx.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: #888;">No transactions found</td></tr>`;
+          return;
+        }
+        let html = "";
+        allTrx.forEach((t) => {
+          const amount = parseFloat(t.amount);
+          const color = amount > 0 ? "#28a745" : "#dc3545";
+          html += `
+                    <tr>
+                        <td style="font-family: monospace; color: #555;">${t.refId || "N/A"}</td>
+                        <td class="kh-text" style="font-weight: 600;">${t.sender}</td>
+                        <td>
+                            <div style="font-weight:600; color:#333;">${t.type}</div>
+                            <div style="font-size:0.8rem; color:#888;">${t.partner || "-"}</div>
+                        </td>
+                        <td style="color:${color}; font-weight:800;">$${Math.abs(amount).toFixed(2)}</td>
+                        <td style="font-size:0.85rem; color:#666;">${t.date}</td>
+                        <td><span class="status-badge success">Success</span></td>
+                        <td>
+                            <button class="action-btn" onclick='viewSlip(${JSON.stringify(t)})' title="View Slip">
+                                <i class="fa-solid fa-receipt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+        });
+        tbody.innerHTML = html;
+      }
+
+      function viewSlip(t) {
+        document.getElementById("slipAmount").innerText =
+          "$" + Math.abs(t.amount).toFixed(2);
+        document.getElementById("slipRef").innerText = t.refId || "N/A";
+        document.getElementById("slipSender").innerText = t.sender;
+        document.getElementById("slipReceiver").innerText = t.partner || t.type;
+        document.getElementById("slipDate").innerText = t.date;
+        document.getElementById("slipModal").style.display = "flex";
+      }
+
+      function searchTransaction() {
+        const input = document
+          .getElementById("trxSearchInput")
+          .value.trim()
+          .toUpperCase();
+        if (!input)
+          return Swal.fire({
+            icon: "warning",
+            title: "Please Enter ID",
+            confirmButtonColor: "#004d40",
+          });
+
+        const t = allTrx.find(
+          (x) => x.refId && x.refId.toUpperCase() === input,
+        );
+
+        if (t) {
+          // Mock Data for "Pro" Details
+          const randomIP = `103.11.${Math.floor(Math.random() * 99)}.${Math.floor(Math.random() * 255)}`;
+          const device = "iPhone 14 Pro Max";
+          const location = "Phnom Penh, KH";
+          const fee = "$0.00";
+          const isIncome = t.amount > 0;
+          const color = isIncome ? "#00b894" : "#e71d36";
+          const icon = isIncome ? "fa-arrow-down" : "fa-arrow-up";
+
+          const html = `
+                    <div style="padding: 25px; max-height: 400px; overflow-y: auto;">
+                        <div style="text-align:center; margin-bottom: 25px;">
+                             <div style="width: 60px; height: 60px; background: ${isIncome ? "#e0f2f1" : "#ffebee"}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                                <i class="fa-solid ${icon}" style="font-size: 1.5rem; color: ${color};"></i>
+                             </div>
+                             <h1 style="margin:0; font-size: 2rem; color: #333;">${isIncome ? "+" : ""}$${Math.abs(t.amount).toFixed(2)}</h1>
+                             <span class="status-badge success" style="margin-top:8px; display:inline-block;">Completed</span>
+                        </div>
+
+                        <div class="section-title">General Info</div>
+                        <div class="detail-row"><span class="detail-label">Transaction ID</span><span class="detail-val" style="font-family:monospace;">${t.refId}</span></div>
+                        <div class="detail-row"><span class="detail-label">Date & Time</span><span class="detail-val">${t.date}</span></div>
+                        <div class="detail-row"><span class="detail-label">Service Type</span><span class="detail-val">${t.type}</span></div>
+
+                        <div class="divider"></div>
+
+                        <div class="section-title">Sender & Receiver</div>
+                        <div class="detail-row"><span class="detail-label">Sender Name</span><span class="detail-val kh-text">${t.sender}</span></div>
+                        <div class="detail-row"><span class="detail-label">Sender Account</span><span class="detail-val" style="font-family:monospace;">${t.senderAcc || "N/A"}</span></div>
+                        <div class="detail-row" style="margin-top:10px;"><span class="detail-label">Receiver/Biller</span><span class="detail-val kh-text">${t.partner || "Unknown"}</span></div>
+
+                        <div class="divider"></div>
+
+                        <div class="section-title">Technical Details</div>
+                        <div class="detail-row"><span class="detail-label">IP Address</span><span class="detail-val" style="font-family:monospace;">${randomIP}</span></div>
+                        <div class="detail-row"><span class="detail-label">Device</span><span class="detail-val">${device}</span></div>
+                        <div class="detail-row"><span class="detail-label">Location</span><span class="detail-val">${location}</span></div>
+                        <div class="detail-row"><span class="detail-label">Fee</span><span class="detail-val">${fee}</span></div>
+                    </div>
+                `;
+
+          document.getElementById("trxResultContent").innerHTML = html;
+          document.getElementById("trxResultModal").style.display = "flex";
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Not Found",
+            text: "Transaction ID does not exist in the system.",
+            confirmButtonColor: "#004d40",
+          });
+        }
+      }
+
+      function downloadSlip() {
+        html2canvas(document.getElementById("captureArea"), { scale: 2 }).then(
+          (canvas) => {
+            const link = document.createElement("a");
+            link.download = `Slip.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+          },
+        );
+      }
+
+      loadData();
+    </script>
+  </body>
+</html>

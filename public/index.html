@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - U-Pay</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-section">
+        <div class="brand-logo">
+          <span class="logo-icon">U</span><span class="logo-text">Pay</span>
+        </div>
+        <h2>Welcome Back</h2>
+      </div>
+      <form id="loginForm">
+        <div class="input-group">
+          <label>Username</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter username"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+      <div class="footer-link">
+        <p>New to U-Pay? <a href="register.html">Create Account</a></p>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/toast.js"></script>
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          try {
+            const response = await fetch("/api/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              localStorage.setItem("user", JSON.stringify(data.user));
+              showToast("Login Successful!", "success");
+
+              setTimeout(() => {
+                // ពិនិត្យ Role
+                if (data.user.role === "admin") {
+                  window.location.href = "admin.html"; // ទៅ Admin Panel
+                } else {
+                  window.location.href = "dashboard.html"; // ទៅ Dashboard ធម្មតា
+                }
+              }, 1500);
+            } else {
+              showToast(data.message, "error");
+            }
+          } catch (error) {
+            showToast("Server connection error", "error");
+          }
+        });
+    </script>
+  </body>
+</html>

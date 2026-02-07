@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings - U-Pay</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      /* --- GENERAL STYLES --- */
+      body {
+        background: linear-gradient(135deg, #009688 0%, #00796b 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px 0;
+        font-family: "Segoe UI", sans-serif; /* Default English Font */
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      /* [FIXED] ដាក់ Font ខ្មែរឱ្យចំគោលដៅ (កុំឱ្យប៉ះពាល់ Icon) */
+      body.kh-font {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+
+      /* បង្ខំឱ្យអក្សរទាំងអស់ប្រើ Font ខ្មែរ */
+      body.kh-font h1,
+      body.kh-font h2,
+      body.kh-font h3,
+      body.kh-font p,
+      body.kh-font span,
+      body.kh-font div,
+      body.kh-font label,
+      body.kh-font button,
+      body.kh-font input,
+      body.kh-font .menu-text,
+      body.kh-font .modal-title {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+
+      /* [IMPORTANT] ការពារកុំឱ្យ Font ខ្មែរទៅជាន់លើ ICON */
+      body.kh-font .fa,
+      body.kh-font .fas,
+      body.kh-font .far,
+      body.kh-font .fab,
+      body.kh-font .fa-solid,
+      body.kh-font .fa-regular,
+      body.kh-font .fa-brands,
+      body.kh-font i {
+        font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+        font-weight: 900 !important; /* Ensure icons stay bold/solid */
+      }
+
+      /* លើកលែងឈ្មោះ Profile និងលេខកូដ */
+      body.kh-font .profile-name {
+        font-family: "Segoe UI", sans-serif !important;
+      }
+      body.kh-font #newPinCode {
+        font-family: monospace !important;
+      }
+
+      .mobile-container {
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* --- PROFILE SECTION --- */
+      .profile-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 40px 20px;
+        border-radius: 25px;
+        text-align: center;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .profile-img-box {
+        width: 110px;
+        height: 110px;
+        border: 4px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        overflow: hidden;
+        background: white;
+        margin-bottom: 15px;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+      .profile-img-box:active {
+        transform: scale(0.95);
+      }
+      .profile-img-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .camera-overlay {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        font-size: 0.8rem;
+        padding: 4px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .profile-name {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .profile-role {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-top: 8px;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 5px 15px;
+        border-radius: 20px;
+      }
+
+      /* --- MENU LIST --- */
+      .menu-container {
+        background: white;
+        border-radius: 25px 25px 0 0;
+        padding: 25px;
+        flex: 1;
+        min-height: 400px;
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .section-header {
+        color: #888;
+        font-weight: bold;
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+        padding-left: 10px;
+        letter-spacing: 1px;
+      }
+
+      .menu-card {
+        background: white;
+        border-radius: 16px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid #f0f0f0;
+      }
+      .menu-card:hover {
+        transform: translateX(5px);
+        border-color: #009688;
+        background: #fdfdfd;
+      }
+      .menu-card:active {
+        transform: scale(0.98);
+      }
+
+      .menu-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .menu-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+      .icon-security {
+        background: #e0f2f1;
+        color: #00695c;
+      }
+      .icon-general {
+        background: #e3f2fd;
+        color: #1565c0;
+      }
+      .icon-danger {
+        background: #ffebee;
+        color: #c62828;
+      }
+
+      .menu-text {
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+      }
+      .menu-arrow {
+        color: #ccc;
+        font-size: 0.9rem;
+      }
+
+      .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        color: #00796b;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 12px;
+        border-radius: 12px;
+        background: #f0f2f5;
+        transition: 0.2s;
+      }
+      .back-link:hover {
+        background: #e0f2f1;
+      }
+
+      /* --- MODAL STYLES --- */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 3000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        align-items: flex-end;
+      }
+      .modal-content {
+        background: white;
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+        border-radius: 25px 25px 0 0;
+        padding: 30px;
+        box-sizing: border-box;
+        animation: slideUpModal 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        text-align: center;
+      }
+      @keyframes slideUpModal {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+
+      .close-modal {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 1.5rem;
+        color: #aaa;
+        cursor: pointer;
+        background: #f5f5f5;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-title {
+        margin: 0 0 25px 0;
+        color: #004d40;
+        font-size: 1.4rem;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 600;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid #eee;
+        border-radius: 12px;
+        font-size: 1rem;
+        outline: none;
+        background: #f9f9f9;
+        box-sizing: border-box;
+        transition: 0.2s;
+      }
+      .input-group input:focus {
+        border-color: #009688;
+        background: white;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 14px;
+        background: #00796b;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 121, 107, 0.3);
+        transition: 0.2s;
+      }
+      .btn-primary:active {
+        transform: scale(0.98);
+      }
+      .btn-danger {
+        background: #e71d36;
+        box-shadow: 0 5px 15px rgba(231, 29, 54, 0.3);
+      }
+      .btn-cancel {
+        background: #eee;
+        color: #555;
+        box-shadow: none;
+        margin-bottom: 10px;
+      }
+
+      /* Language Button Style */
+      .lang-option {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+      .lang-option.active {
+        border-color: #009688;
+        background: #e0f2f1;
+      }
+      .lang-flag {
+        font-size: 1.5rem;
+      }
+      .lang-name {
+        font-weight: 600;
+        flex: 1;
+        text-align: left;
+        font-family: "Kantumruy Pro", sans-serif; /* Keep Khmer font in modal */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mobile-container">
+      <div class="profile-card">
+        <div
+          class="profile-img-box"
+          onclick="document.getElementById('fileInput').click()"
+        >
+          <img id="profileImgPreview" src="" style="display: none" />
+          <i
+            id="defaultIcon"
+            class="fa-solid fa-user"
+            style="
+              font-size: 3.5rem;
+              color: #ccc;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+            "
+          ></i>
+          <div class="camera-overlay">
+            <i class="fa-solid fa-camera"></i> Edit
+          </div>
+        </div>
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          style="display: none"
+          onchange="uploadProfile(this)"
+        />
+
+        <h2 class="profile-name" id="profileName">Loading...</h2>
+        <div class="profile-role" data-i18n="profile_role">
+          Personal Account
+        </div>
+      </div>
+
+      <div class="menu-container">
+        <div class="section-header" data-i18n="security_header">SECURITY</div>
+
+        <div class="menu-card" onclick="openModal('passwordModal')">
+          <div class="menu-left">
+            <div class="menu-icon icon-security">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <span class="menu-text" data-i18n="change_pass"
+              >Change Password</span
+            >
+          </div>
+          <div class="menu-arrow">
+            <i class="fa-solid fa-chevron-right"></i>
+          </div>
+        </div>
+
+        <div class="menu-card" onclick="openModal('pinModal')">
+          <div class="menu-left">
+            <div class="menu-icon icon-security">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="menu-text" data-i18n="change_pin"
+              >Change PIN Code</span
+            >
+          </div>
+          <div class="menu-arrow">
+            <i class="fa-solid fa-chevron-right"></i>
+          </div>
+        </div>
+
+        <div
+          class="section-header"
+          style="margin-top: 25px"
+          data-i18n="general_header"
+        >
+          GENERAL
+        </div>
+
+        <div class="menu-card" onclick="openModal('languageModal')">
+          <div class="menu-left">
+            <div class="menu-icon icon-general">
+              <i class="fa-solid fa-globe"></i>
+            </div>
+            <span class="menu-text" data-i18n="language">Language</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 5px">
+            <span
+              id="currentLangLabel"
+              style="color: #009688; font-weight: bold; font-size: 0.9rem"
+              >EN</span
+            >
+            <div class="menu-arrow">
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-card" onclick="openModal('logoutModal')">
+          <div class="menu-left">
+            <div class="menu-icon icon-danger">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
+            <span class="menu-text" style="color: #c62828" data-i18n="logout"
+              >Logout</span
+            >
+          </div>
+          <div class="menu-arrow">
+            <i class="fa-solid fa-chevron-right"></i>
+          </div>
+        </div>
+
+        <a href="dashboard.html" class="back-link">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span data-i18n="back_dashboard">Back to Dashboard</span>
+        </a>
+      </div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('passwordModal')"
+          >&times;</span
+        >
+        <h3 class="modal-title" data-i18n="modal_pass_title">
+          Change Password
+        </h3>
+        <div class="input-group">
+          <label data-i18n="lbl_old_pass">Old Password</label>
+          <input type="password" id="oldPass" />
+        </div>
+        <div class="input-group">
+          <label data-i18n="lbl_new_pass">New Password</label>
+          <input type="password" id="newPass" />
+        </div>
+        <button
+          onclick="changePassword()"
+          class="btn-primary"
+          data-i18n="btn_update_pass"
+        >
+          Update Password
+        </button>
+      </div>
+    </div>
+
+    <div id="pinModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('pinModal')"
+          >&times;</span
+        >
+        <h3 class="modal-title" data-i18n="modal_pin_title">Setup PIN Code</h3>
+        <div class="input-group">
+          <label data-i18n="lbl_confirm_pass">Confirm Password</label>
+          <input type="password" id="pinAuthPass" />
+        </div>
+        <div class="input-group">
+          <label data-i18n="lbl_new_pin">New 4-Digit PIN</label>
+          <input
+            type="password"
+            id="newPinCode"
+            maxlength="4"
+            style="
+              text-align: center;
+              letter-spacing: 15px;
+              font-size: 1.5rem;
+              font-weight: bold;
+              color: #00796b;
+            "
+          />
+        </div>
+        <button
+          onclick="changePin()"
+          class="btn-primary"
+          data-i18n="btn_set_pin"
+        >
+          Set PIN
+        </button>
+      </div>
+    </div>
+
+    <div id="languageModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('languageModal')"
+          >&times;</span
+        >
+        <h3 class="modal-title" data-i18n="modal_lang_title">
+          Select Language
+        </h3>
+
+        <div class="lang-option" onclick="setLanguage('en')" id="lang-en">
+          <span class="lang-flag">🇺🇸</span>
+          <span class="lang-name">English</span>
+          <i
+            class="fa-solid fa-check"
+            style="color: #009688; display: none"
+            id="check-en"
+          ></i>
+        </div>
+
+        <div class="lang-option" onclick="setLanguage('kh')" id="lang-kh">
+          <span class="lang-flag">🇰🇭</span>
+          <span class="lang-name">ភាសាខ្មែរ</span>
+          <i
+            class="fa-solid fa-check"
+            style="color: #009688; display: none"
+            id="check-kh"
+          ></i>
+        </div>
+      </div>
+    </div>
+
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <i
+          class="fa-solid fa-right-from-bracket"
+          style="font-size: 3rem; color: #e71d36; margin-bottom: 20px"
+        ></i>
+        <h3 style="margin-bottom: 10px" data-i18n="modal_logout_title">
+          Log Out?
+        </h3>
+        <p
+          style="margin-bottom: 25px; color: #666"
+          data-i18n="modal_logout_desc"
+        >
+          Are you sure you want to exit?
+        </p>
+        <button
+          onclick="performLogout()"
+          class="btn-primary btn-danger"
+          style="margin-bottom: 10px"
+          data-i18n="btn_yes_logout"
+        >
+          Yes, Logout
+        </button>
+        <button
+          onclick="closeModal('logoutModal')"
+          class="btn-primary btn-cancel"
+          data-i18n="btn_cancel"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+    <script src="js/toast.js"></script>
+
+    <script src="js/lang.js"></script>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) window.location.href = "index.html";
+
+      document.getElementById("profileName").textContent = user.username;
+      if (user.profileImage) {
+        document.getElementById("profileImgPreview").src = user.profileImage;
+        document.getElementById("profileImgPreview").style.display = "block";
+        document.getElementById("defaultIcon").style.display = "none";
+      }
+
+      // --- LANGUAGE LOGIC ---
+      function setLanguage(lang) {
+        localStorage.setItem("lang", lang);
+        applyLanguage();
+        closeModal("languageModal");
+      }
+
+      // --- MODAL FUNCTIONS ---
+      function openModal(id) {
+        const modal = document.getElementById(id);
+        modal.style.display = "flex";
+        const input = modal.querySelector("input");
+        if (input) input.focus();
+      }
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+      window.onclick = function (event) {
+        if (event.target.classList.contains("modal"))
+          event.target.style.display = "none";
+      };
+
+      // --- OTHER FUNCTIONS ---
+      async function changePassword() {
+        const oldPass = document.getElementById("oldPass").value;
+        const newPass = document.getElementById("newPass").value;
+        if (!oldPass || !newPass) return showToast("Fill fields", "error");
+        try {
+          const res = await fetch("/api/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: user.username,
+              oldPassword: oldPass,
+              newPassword: newPass,
+            }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("Success!", "success");
+            user.password = newPass;
+            localStorage.setItem("user", JSON.stringify(user));
+            closeModal("passwordModal");
+          } else {
+            showToast(data.message, "error");
+          }
+        } catch (e) {
+          showToast("Error", "error");
+        }
+      }
+
+      async function changePin() {
+        const password = document.getElementById("pinAuthPass").value;
+        const newPin = document.getElementById("newPinCode").value;
+        if (!password || newPin.length !== 4)
+          return showToast("Check Input", "error");
+        try {
+          const res = await fetch("/api/change-pin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: user.username,
+              password: password,
+              newPin: newPin,
+            }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("Success!", "success");
+            user.pin = newPin;
+            localStorage.setItem("user", JSON.stringify(user));
+            closeModal("pinModal");
+          } else {
+            showToast(data.message, "error");
+          }
+        } catch (e) {
+          showToast("Error", "error");
+        }
+      }
+
+      function uploadProfile(input) {
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = async function (e) {
+            const base64 = e.target.result;
+            document.getElementById("profileImgPreview").src = base64;
+            document.getElementById("profileImgPreview").style.display =
+              "block";
+            document.getElementById("defaultIcon").style.display = "none";
+            await fetch("/api/update-profile-pic", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username: user.username, image: base64 }),
+            });
+            user.profileImage = base64;
+            localStorage.setItem("user", JSON.stringify(user));
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      function performLogout() {
+        localStorage.removeItem("user");
+        window.location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>

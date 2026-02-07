@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bill Payment - U-Pay</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      body {
+        background-color: #f2f4f6;
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      /* [FONT LOGIC] */
+      body.kh-font {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+      body.kh-font h1,
+      body.kh-font h2,
+      body.kh-font h3,
+      body.kh-font p,
+      body.kh-font span,
+      body.kh-font div,
+      body.kh-font button,
+      body.kh-font label,
+      body.kh-font input,
+      body.kh-font option {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+
+      .app-container {
+        max-width: 450px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .nav-header {
+        padding: 20px;
+        background: #004d40;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 1.1rem;
+      }
+      .nav-header a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .payment-form {
+        padding: 25px;
+        flex: 1;
+      }
+
+      .biller-logo {
+        width: 80px;
+        height: 80px;
+        background: #fff;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #004d40;
+        font-size: 2.5rem;
+        border: 4px solid #e0f2f1;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: 0.3s;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .main-input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        font-size: 1rem;
+        outline: none;
+        background: #f9f9f9;
+        box-sizing: border-box;
+      }
+      select.main-input {
+        appearance: none;
+        cursor: pointer;
+      }
+
+      .confirm-btn {
+        width: 100%;
+        padding: 15px;
+        background: #004d40;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      /* Modal & Slip Styles */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 20px 0;
+      }
+      .pin-box {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .pin-digit {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        text-align: center;
+        border-radius: 10px;
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+        outline: none;
+      }
+
+      .slip-container {
+        width: 320px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        animation: slideUp 0.4s ease-out;
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .slip-header {
+        background: #004d40;
+        padding: 25px;
+        text-align: center;
+        color: white;
+      }
+      .slip-amount {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-top: 5px;
+      }
+      .slip-body {
+        padding: 20px 25px;
+        background: white;
+      }
+      .trx-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+      }
+      .dashed-line {
+        border-top: 2px dashed #ccc;
+        margin: 20px -25px;
+        position: relative;
+      }
+      .dashed-line::before,
+      .dashed-line::after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        width: 20px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.85);
+        border-radius: 50%;
+      }
+      .dashed-line::before {
+        left: -10px;
+      }
+      .dashed-line::after {
+        right: -10px;
+      }
+      .slip-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+      }
+      .slip-val {
+        font-weight: 600;
+        text-align: right;
+        max-width: 180px;
+      }
+      .slip-footer {
+        padding: 15px 20px;
+        background: white;
+        border-top: 2px dashed #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .action-buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .btn-save {
+        background: white;
+        color: #004d40;
+        padding: 12px 25px;
+        border-radius: 30px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      .btn-close {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        padding: 10px 25px;
+        border-radius: 30px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="nav-header">
+        <a href="dashboard.html"><i class="fa-solid fa-arrow-left"></i></a>
+        <span data-i18n="tab_payment">Bill Payment</span>
+      </div>
+
+      <div class="payment-form">
+        <div style="text-align: center; margin-bottom: 30px">
+          <div class="biller-logo">
+            <i class="fa-solid fa-bolt" id="billerIcon"></i>
+          </div>
+          <h3 id="billerTitle" style="color: #004d40">Select Biller</h3>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lbl_select_biller">Biller Service</label>
+          <select id="billerName" class="main-input" onchange="updateIcon()">
+            <option value="EDC" data-icon="fa-bolt">EDC (អគ្គិសនី)</option>
+            <option value="PPWSA" data-icon="fa-faucet-drip">
+              PPWSA (រដ្ឋាករទឹក)
+            </option>
+            <option value="Internet" data-icon="fa-wifi">
+              Internet (អ៊ីនធឺណិត)
+            </option>
+            <option value="School" data-icon="fa-graduation-cap">
+              School (សាលារៀន)
+            </option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lbl_consumer_id">Consumer ID / Bill ID</label>
+          <input type="text" id="billId" class="main-input" placeholder="..." />
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lbl_amount">Amount ($)</label>
+          <input
+            type="number"
+            id="amount"
+            class="main-input"
+            placeholder="0.00"
+          />
+        </div>
+
+        <button
+          onclick="openPinModal()"
+          class="confirm-btn"
+          data-i18n="btn_confirm_trx"
+        >
+          Confirm Payment
+        </button>
+      </div>
+    </div>
+
+    <div id="pinModal" class="modal-overlay">
+      <h3 style="color: white; margin-bottom: 10px">Enter Payment PIN</h3>
+      <div class="pin-box">
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p1"
+          oninput="moveFocus(this, 'p2')"
+        />
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p2"
+          oninput="moveFocus(this, 'p3')"
+          onkeydown="backFocus(event, 'p1')"
+        />
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p3"
+          oninput="moveFocus(this, 'p4')"
+          onkeydown="backFocus(event, 'p2')"
+        />
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p4"
+          oninput="submitPin()"
+          onkeydown="backFocus(event, 'p3')"
+        />
+      </div>
+      <button
+        onclick="closeModal('pinModal')"
+        style="
+          margin-top: 30px;
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+        "
+      >
+        Cancel
+      </button>
+    </div>
+
+    <div id="slipModal" class="modal-overlay">
+      <div id="captureArea" class="slip-container">
+        <div class="slip-header">
+          <div
+            style="
+              width: 50px;
+              height: 50px;
+              background: white;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 10px;
+              color: #004d40;
+              font-size: 1.5rem;
+            "
+          >
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div style="font-weight: bold; font-size: 1.1rem" id="slipTitleText">
+            Payment Successful
+          </div>
+          <div class="slip-amount" id="slipAmount">$0.00</div>
+        </div>
+        <div class="slip-body">
+          <div class="trx-row">
+            <span>Transaction ID</span
+            ><span style="font-weight: bold" id="slipRef">...</span>
+          </div>
+          <div class="dashed-line"></div>
+          <div class="slip-row">
+            <span>Date</span><span class="slip-val" id="slipDate">...</span>
+          </div>
+          <div class="slip-row">
+            <span id="lblBiller">Biller</span
+            ><span class="slip-val" id="slipBiller">...</span>
+          </div>
+          <div class="slip-row">
+            <span>Bill ID</span
+            ><span class="slip-val" id="slipBillId">...</span>
+          </div>
+          <div class="slip-row">
+            <span>Payer</span><span class="slip-val" id="slipPayer">...</span>
+          </div>
+          <div class="slip-row">
+            <span>Status</span
+            ><span class="slip-val" style="color: #009688">PAID</span>
+          </div>
+        </div>
+        <div class="slip-footer">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VerifyPayment"
+              style="
+                width: 55px;
+                border: 1px solid #eee;
+                padding: 2px;
+                border-radius: 5px;
+              "
+            />
+            <div style="text-align: left; line-height: 1.2">
+              <span style="font-size: 0.65rem; color: #999">SCAN TO CHECK</span
+              ><span
+                style="font-size: 0.85rem; font-weight: bold; color: #004d40"
+                >U-Pay Secure</span
+              >
+            </div>
+          </div>
+          <div>
+            <img src="images/logo.png" style="width: 80px; opacity: 0.9" />
+          </div>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button onclick="saveSlipImage()" class="btn-save">
+          <i class="fa-solid fa-download"></i> Save
+        </button>
+        <button
+          onclick="window.location.href = 'dashboard.html'"
+          class="btn-close"
+        >
+          Done
+        </button>
+      </div>
+    </div>
+
+    <script src="js/lang.js"></script>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      // [Logic] Update Icon based on selection
+      function updateIcon() {
+        const select = document.getElementById("billerName");
+        const selectedOption = select.options[select.selectedIndex];
+        const iconClass = selectedOption.getAttribute("data-icon");
+        document.getElementById("billerIcon").className =
+          `fa-solid ${iconClass}`;
+        document.getElementById("billerTitle").innerText =
+          selectedOption.text.split("(")[0]; // Show only EN name in title
+      }
+      // Run once on load
+      updateIcon();
+
+      function openPinModal() {
+        if (
+          !document.getElementById("billId").value ||
+          !document.getElementById("amount").value
+        ) {
+          return Swal.fire({
+            icon: "warning",
+            title: "Missing Info",
+            text: "Please check Bill ID and Amount",
+            confirmButtonColor: "#004d40",
+          });
+        }
+        document.getElementById("pinModal").style.display = "flex";
+        ["p1", "p2", "p3", "p4"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+        document.getElementById("p1").focus();
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+      function moveFocus(c, n) {
+        if (c.value.length >= 1) document.getElementById(n).focus();
+      }
+      function backFocus(e, p) {
+        if (e.key === "Backspace" && e.target.value === "")
+          document.getElementById(p).focus();
+      }
+
+      async function submitPin() {
+        const pin =
+          document.getElementById("p1").value +
+          document.getElementById("p2").value +
+          document.getElementById("p3").value +
+          document.getElementById("p4").value;
+        if (pin.length === 4) {
+          closeModal("pinModal");
+          processPayment(pin);
+        }
+      }
+
+      async function processPayment(pin) {
+        try {
+          Swal.fire({
+            title: "Processing...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          });
+
+          const res = await fetch("/api/payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: user.username,
+              billerName: document.getElementById("billerName").value,
+              billId: document.getElementById("billId").value,
+              amount: document.getElementById("amount").value,
+              pin: pin,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            user.balance = data.newBalance;
+            localStorage.setItem("user", JSON.stringify(user));
+
+            const audio = new Audio(
+              "https://notificationsounds.com/storage/sounds/file-sounds-1148-juntos.mp3",
+            );
+            audio.play();
+
+            Swal.fire({
+              icon: "success",
+              title: "Payment Successful!",
+              timer: 1500,
+              showConfirmButton: false,
+            }).then(() => {
+              showSlip(data.slipData);
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Failed",
+              text: data.message,
+              confirmButtonColor: "#e71d36",
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Server connection failed.",
+          });
+        }
+      }
+
+      function showSlip(data) {
+        document.getElementById("slipAmount").textContent =
+          "$" + Math.abs(data.amount).toFixed(2);
+        document.getElementById("slipDate").textContent = data.date;
+        document.getElementById("slipRef").textContent = data.refId;
+        document.getElementById("slipBiller").textContent = data.partner;
+        document.getElementById("slipBillId").textContent =
+          data.billId || document.getElementById("billId").value;
+        document.getElementById("slipPayer").textContent = user.username;
+
+        // Translate Slip Title based on Lang
+        const lang = localStorage.getItem("lang") || "en";
+        if (lang === "kh") {
+          document.getElementById("slipTitleText").textContent =
+            "បង់វិក្កយបត្រជោគជ័យ";
+          document.getElementById("lblBiller").textContent = "ទៅកាន់";
+        }
+
+        document.getElementById("slipModal").style.display = "flex";
+      }
+
+      function saveSlipImage() {
+        html2canvas(document.getElementById("captureArea"), { scale: 2 }).then(
+          (canvas) => {
+            const link = document.createElement("a");
+            link.download = `Payment-Slip-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+          },
+        );
+      }
+    </script>
+  </body>
+</html>

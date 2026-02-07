@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transfer - U-Pay</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      body {
+        background-color: #f2f4f6;
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      /* [FIXED CSS] ដាក់ Font ខ្មែរតែលើអក្សរ ហាមប៉ះ Icon */
+      body.kh-font h1,
+      body.kh-font h2,
+      body.kh-font h3,
+      body.kh-font p,
+      body.kh-font span,
+      body.kh-font div,
+      body.kh-font button,
+      body.kh-font label,
+      body.kh-font input,
+      body.kh-font select,
+      body.kh-font option,
+      body.kh-font .mode-title {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+
+      /* ការពារ Icon */
+      body.kh-font .fa,
+      body.kh-font .fas,
+      body.kh-font .fa-solid {
+        font-family: "Font Awesome 6 Free" !important;
+        font-weight: 900 !important;
+      }
+
+      .app-container {
+        max-width: 450px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .nav-header {
+        padding: 20px;
+        background: #004d40;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 1.1rem;
+      }
+      .nav-header a {
+        color: white;
+        text-decoration: none;
+      }
+
+      /* TAB STYLES */
+      .tab-container {
+        display: flex;
+        background: #e0f2f1;
+        padding: 5px;
+        margin: 20px;
+        border-radius: 30px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        background: transparent;
+        font-weight: bold;
+        color: #00695c;
+        cursor: pointer;
+        border-radius: 25px;
+        transition: 0.3s;
+      }
+      .tab-btn.active {
+        background: #004d40;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .mode-title {
+        text-align: center;
+        margin: 30px 0 10px 0;
+        font-size: 1.5rem;
+        color: #004d40;
+        font-weight: bold;
+        display: none;
+      }
+
+      .transfer-form {
+        padding: 0 25px 25px 25px;
+        flex: 1;
+        transition: 0.3s;
+      }
+      .form-locked {
+        padding-top: 20px;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .main-input,
+      select.main-input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        font-size: 1rem;
+        outline: none;
+        background: #f9f9f9;
+        box-sizing: border-box;
+      }
+      .main-input[readonly] {
+        background-color: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+        border-color: #ced4da;
+      }
+
+      .confirm-btn {
+        width: 100%;
+        padding: 15px;
+        background: #004d40;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      /* Modal & Slip Styles */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 20px 0;
+      }
+      .pin-box {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .pin-digit {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        text-align: center;
+        border-radius: 10px;
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+        outline: none;
+      }
+      .slip-container {
+        width: 320px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        animation: slideUp 0.4s ease-out;
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .slip-header {
+        background: #004d40;
+        padding: 25px;
+        text-align: center;
+        color: white;
+      }
+      .slip-amount {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-top: 5px;
+      }
+      .slip-body {
+        padding: 20px 25px;
+        background: white;
+      }
+      .trx-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+      }
+      .dashed-line {
+        border-top: 2px dashed #ccc;
+        margin: 20px -25px;
+        position: relative;
+      }
+      .dashed-line::before,
+      .dashed-line::after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        width: 20px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.85);
+        border-radius: 50%;
+      }
+      .dashed-line::before {
+        left: -10px;
+      }
+      .dashed-line::after {
+        right: -10px;
+      }
+      .slip-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+      }
+      .slip-val {
+        font-weight: 600;
+        text-align: right;
+        max-width: 180px;
+        word-wrap: break-word;
+      }
+      .slip-footer {
+        padding: 15px 20px;
+        background: white;
+        border-top: 2px dashed #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .action-buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .btn-save {
+        background: white;
+        color: #004d40;
+        padding: 12px 25px;
+        border-radius: 30px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      .btn-close {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        padding: 10px 25px;
+        border-radius: 30px;
+        cursor: pointer;
+      }
+
+      .biller-logo {
+        width: 60px;
+        height: 60px;
+        background: #fff;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #004d40;
+        font-size: 1.8rem;
+        border: 3px solid #e0f2f1;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="nav-header">
+        <a href="dashboard.html"><i class="fa-solid fa-arrow-left"></i></a>
+        <span data-i18n="nav_transaction">Transactions</span>
+      </div>
+
+      <div class="tab-container" id="tabMenu">
+        <button
+          class="tab-btn active"
+          onclick="switchTab('transfer')"
+          id="tab-transfer"
+          data-i18n="tab_transfer"
+        >
+          Transfer Money
+        </button>
+        <button
+          class="tab-btn"
+          onclick="switchTab('payment')"
+          id="tab-payment"
+          data-i18n="tab_payment"
+        >
+          Bill Payment
+        </button>
+      </div>
+
+      <h2 id="modeTitle" class="mode-title"></h2>
+
+      <div class="transfer-form" id="mainForm">
+        <div id="transfer-section">
+          <div style="text-align: center; margin-bottom: 20px">
+            <div
+              style="
+                width: 60px;
+                height: 60px;
+                background: #e0f2f1;
+                border-radius: 50%;
+                margin: 0 auto 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #004d40;
+                font-size: 1.5rem;
+              "
+            >
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <h3
+              id="displayReceiverName"
+              data-i18n="checking_name"
+              style="margin: 0; color: #004d40"
+            >
+              Checking...
+            </h3>
+          </div>
+          <div class="input-group">
+            <label data-i18n="lbl_receiver_acc">Receiver Account</label>
+            <input
+              type="number"
+              id="receiverAcc"
+              class="main-input"
+              placeholder="..."
+            />
+          </div>
+        </div>
+
+        <div id="payment-section" style="display: none">
+          <div style="text-align: center; margin-bottom: 20px">
+            <div class="biller-logo">
+              <i class="fa-solid fa-bolt" id="billerIcon"></i>
+            </div>
+            <h3 id="billerTitle" style="color: #004d40; margin: 0">
+              Select Biller
+            </h3>
+          </div>
+          <div class="input-group">
+            <label data-i18n="lbl_select_biller">Biller Service</label>
+            <select id="billerName" class="main-input" onchange="updateIcon()">
+              <option value="EDC" data-icon="fa-bolt">EDC (អគ្គិសនី)</option>
+              <option value="PPWSA" data-icon="fa-faucet-drip">
+                PPWSA (រដ្ឋាករទឹក)
+              </option>
+              <option value="Internet" data-icon="fa-wifi">
+                Internet (អ៊ីនធឺណិត)
+              </option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label data-i18n="lbl_consumer_id">Consumer ID / Bill ID</label>
+            <input
+              type="text"
+              id="billId"
+              class="main-input"
+              placeholder="..."
+            />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lbl_amount">Amount ($)</label>
+          <input
+            type="number"
+            id="amount"
+            class="main-input"
+            placeholder="0.00"
+          />
+        </div>
+
+        <div class="input-group" id="remark-group">
+          <label data-i18n="lbl_remark">Remark</label>
+          <input type="text" id="remark" class="main-input" placeholder="..." />
+        </div>
+
+        <button
+          onclick="openPinModal()"
+          class="confirm-btn"
+          data-i18n="btn_confirm_trx"
+        >
+          Confirm Transaction
+        </button>
+      </div>
+    </div>
+
+    <div id="pinModal" class="modal-overlay">
+      <h3 style="color: white; margin-bottom: 10px">Enter PIN</h3>
+      <div class="pin-box">
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p1"
+          oninput="moveFocus(this, 'p2')"
+        />
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p2"
+          oninput="moveFocus(this, 'p3')"
+          onkeydown="backFocus(event, 'p1')"
+        />
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p3"
+          oninput="moveFocus(this, 'p4')"
+          onkeydown="backFocus(event, 'p2')"
+        />
+        <input
+          type="password"
+          class="pin-digit"
+          maxlength="1"
+          id="p4"
+          oninput="submitPin()"
+          onkeydown="backFocus(event, 'p3')"
+        />
+      </div>
+      <button
+        onclick="closeModal('pinModal')"
+        style="
+          margin-top: 30px;
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+        "
+      >
+        Cancel
+      </button>
+    </div>
+
+    <div id="slipModal" class="modal-overlay">
+      <div id="captureArea" class="slip-container">
+        <div class="slip-header">
+          <div
+            style="
+              width: 50px;
+              height: 50px;
+              background: white;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 10px;
+              color: #004d40;
+              font-size: 1.5rem;
+            "
+          >
+            <i class="fa-solid fa-check" id="slipStatusIcon"></i>
+          </div>
+          <div style="font-weight: bold; font-size: 1.1rem" id="slipTitleText">
+            Transaction Successful
+          </div>
+          <div class="slip-amount" id="slipAmount">$0.00</div>
+        </div>
+        <div class="slip-body">
+          <div class="trx-row">
+            <span>Transaction ID</span
+            ><span style="font-weight: bold" id="slipRef">...</span>
+          </div>
+          <div class="dashed-line"></div>
+          <div class="slip-row">
+            <span>Date</span><span class="slip-val" id="slipDate">...</span>
+          </div>
+          <div class="slip-row">
+            <span>From</span><span class="slip-val" id="slipSender">...</span>
+          </div>
+          <div class="slip-row">
+            <span id="lblTo">To</span
+            ><span class="slip-val" id="slipReceiver">...</span>
+          </div>
+          <div class="slip-row">
+            <span>Ref ID</span
+            ><span class="slip-val" id="slipTargetID">...</span>
+          </div>
+          <div class="slip-row" id="slipRemarkRow">
+            <span>Remark</span><span class="slip-val" id="slipRemark">...</span>
+          </div>
+        </div>
+        <div class="slip-footer">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Verify"
+              style="
+                width: 55px;
+                border: 1px solid #eee;
+                padding: 2px;
+                border-radius: 5px;
+              "
+            />
+            <div style="text-align: left; line-height: 1.2">
+              <span style="display: block; font-size: 0.65rem; color: #999"
+                >SCAN TO CHECK</span
+              >
+              <span
+                style="
+                  display: block;
+                  font-size: 0.85rem;
+                  font-weight: bold;
+                  color: #004d40;
+                "
+                >U-Pay Secure</span
+              >
+            </div>
+          </div>
+          <div>
+            <img src="images/logo.png" style="width: 80px; opacity: 0.9" />
+          </div>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button onclick="saveSlipImage()" class="btn-save">
+          <i class="fa-solid fa-download"></i> Save
+        </button>
+        <button
+          onclick="window.location.href = 'dashboard.html'"
+          class="btn-close"
+        >
+          Done
+        </button>
+      </div>
+    </div>
+
+    <script src="js/lang.js"></script>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("user"));
+      let currentMode = "transfer";
+
+      function switchTab(mode) {
+        currentMode = mode;
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById(`tab-${mode}`).classList.add("active");
+
+        if (mode === "transfer") {
+          document.getElementById("transfer-section").style.display = "block";
+          document.getElementById("payment-section").style.display = "none";
+          document.getElementById("remark-group").style.display = "block";
+        } else {
+          document.getElementById("transfer-section").style.display = "none";
+          document.getElementById("payment-section").style.display = "block";
+          document.getElementById("remark-group").style.display = "none";
+          updateIcon();
+        }
+      }
+
+      function updateIcon() {
+        const select = document.getElementById("billerName");
+        const selectedOption = select.options[select.selectedIndex];
+        const iconClass = selectedOption.getAttribute("data-icon");
+        document.getElementById("billerIcon").className =
+          `fa-solid ${iconClass}`;
+        document.getElementById("billerTitle").innerText =
+          selectedOption.text.split("(")[0];
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const scanMode = urlParams.get("mode");
+      const scanAcc = urlParams.get("acc");
+      const scanBillId = urlParams.get("billId");
+      const isLock = urlParams.get("lock") === "true";
+
+      if (isLock) {
+        document.getElementById("tabMenu").style.display = "none";
+        document.getElementById("mainForm").classList.add("form-locked");
+
+        const titleEl = document.getElementById("modeTitle");
+        titleEl.style.display = "block";
+
+        const lang = localStorage.getItem("lang") || "en";
+        if (scanMode === "payment") {
+          titleEl.textContent =
+            lang === "kh" ? "បង់វិក្កយបត្រ" : "Bill Payment";
+        } else {
+          titleEl.textContent =
+            lang === "kh" ? "ផ្ទេរប្រាក់" : "Transfer Money";
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        if (scanMode === "payment") {
+          switchTab("payment");
+          if (scanBillId) {
+            const billInput = document.getElementById("billId");
+            billInput.value = scanBillId;
+            if (isLock) billInput.setAttribute("readonly", true);
+          }
+        } else {
+          switchTab("transfer");
+          if (scanAcc) {
+            const accInput = document.getElementById("receiverAcc");
+            accInput.value = scanAcc;
+            if (isLock) accInput.setAttribute("readonly", true);
+            setTimeout(() => checkAccount(scanAcc), 300);
+          }
+        }
+      });
+
+      document
+        .getElementById("receiverAcc")
+        .addEventListener("blur", function () {
+          if (currentMode === "transfer" && !this.hasAttribute("readonly"))
+            checkAccount(this.value);
+        });
+
+      function checkAccount(accNum) {
+        const lang = localStorage.getItem("lang") || "en";
+        const checkingText = translations[lang]
+          ? translations[lang]["checking_name"]
+          : "Checking...";
+        const unknownText = translations[lang]
+          ? translations[lang]["unknown_user"]
+          : "Unknown User";
+
+        if (!accNum) return;
+        document.getElementById("displayReceiverName").textContent =
+          checkingText;
+
+        fetch("/api/check-account", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accountNumber: accNum }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              document.getElementById("displayReceiverName").textContent =
+                data.username;
+              document.getElementById("displayReceiverName").style.color =
+                "#004d40";
+            } else {
+              document.getElementById("displayReceiverName").textContent =
+                unknownText;
+              document.getElementById("displayReceiverName").style.color =
+                "#e71d36";
+            }
+          })
+          .catch(() => {
+            document.getElementById("displayReceiverName").textContent =
+              "Connection Error";
+          });
+      }
+
+      function openPinModal() {
+        const amount = document.getElementById("amount").value;
+        if (!amount)
+          return Swal.fire({
+            icon: "warning",
+            title: "Missing Amount",
+            confirmButtonColor: "#004d40",
+          });
+        if (
+          currentMode === "transfer" &&
+          !document.getElementById("receiverAcc").value
+        )
+          return Swal.fire({ icon: "warning", title: "Missing Account" });
+        if (
+          currentMode === "payment" &&
+          !document.getElementById("billId").value
+        )
+          return Swal.fire({ icon: "warning", title: "Missing Bill ID" });
+
+        document.getElementById("pinModal").style.display = "flex";
+        ["p1", "p2", "p3", "p4"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+        document.getElementById("p1").focus();
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+      function moveFocus(c, n) {
+        if (c.value.length >= 1) document.getElementById(n).focus();
+      }
+      function backFocus(e, p) {
+        if (e.key === "Backspace" && e.target.value === "")
+          document.getElementById(p).focus();
+      }
+
+      async function submitPin() {
+        const pin =
+          document.getElementById("p1").value +
+          document.getElementById("p2").value +
+          document.getElementById("p3").value +
+          document.getElementById("p4").value;
+        if (pin.length === 4) {
+          closeModal("pinModal");
+          processTransaction(pin);
+        }
+      }
+
+      async function processTransaction(pin) {
+        try {
+          Swal.fire({
+            title: "Processing...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          });
+          let targetAccount, finalRemark, endpoint, bodyData;
+
+          if (currentMode === "transfer") {
+            endpoint = "/api/transfer";
+            targetAccount = document.getElementById("receiverAcc").value;
+            finalRemark = document.getElementById("remark").value;
+            bodyData = {
+              senderUsername: user.username,
+              receiverAcc: targetAccount,
+              receiverAccount: targetAccount,
+              accountNumber: targetAccount,
+              amount: document.getElementById("amount").value,
+              remark: finalRemark,
+              pin: pin,
+            };
+          } else {
+            endpoint = "/api/payment";
+            targetAccount = document.getElementById("billId").value;
+            const billerName = document.getElementById("billerName").value;
+            bodyData = {
+              username: user.username,
+              billerName: billerName,
+              billId: targetAccount,
+              amount: document.getElementById("amount").value,
+              pin: pin,
+            };
+          }
+
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyData),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            user.balance =
+              data.newBalance ||
+              user.balance -
+                parseFloat(document.getElementById("amount").value);
+            localStorage.setItem("user", JSON.stringify(user));
+            new Audio(
+              "https://notificationsounds.com/storage/sounds/file-sounds-1148-juntos.mp3",
+            ).play();
+
+            Swal.fire({
+              icon: "success",
+              title: "Successful!",
+              timer: 1500,
+              showConfirmButton: false,
+            }).then(() => {
+              showSlip(data.slipData);
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Failed",
+              text: data.message,
+              confirmButtonColor: "#e71d36",
+            });
+          }
+        } catch (err) {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Server connection failed.",
+          });
+        }
+      }
+
+      function showSlip(data) {
+        document.getElementById("slipAmount").textContent =
+          "$" + Math.abs(data.amount).toFixed(2);
+        document.getElementById("slipDate").textContent = data.date;
+        document.getElementById("slipRef").textContent = data.refId;
+        document.getElementById("slipSender").textContent =
+          data.senderName || user.username;
+
+        const lang = localStorage.getItem("lang") || "en";
+
+        if (currentMode === "payment") {
+          document.getElementById("slipStatusIcon").className =
+            "fa-solid fa-file-invoice-dollar";
+          document.getElementById("slipReceiver").textContent = data.partner;
+          document.getElementById("slipTargetID").textContent = data.billId;
+          document.getElementById("slipRemarkRow").style.display = "none";
+
+          if (lang === "kh") {
+            document.getElementById("slipTitleText").textContent =
+              "បង់វិក្កយបត្រជោគជ័យ";
+            document.getElementById("lblTo").textContent = "ទៅកាន់";
+          } else {
+            document.getElementById("slipTitleText").textContent =
+              "Payment Successful";
+            document.getElementById("lblTo").textContent = "Biller";
+          }
+        } else {
+          document.getElementById("slipStatusIcon").className =
+            "fa-solid fa-check";
+          document.getElementById("slipReceiver").textContent = data.partner;
+          document.getElementById("slipTargetID").textContent = data.partnerAcc;
+          document.getElementById("slipRemark").textContent = data.remark;
+          document.getElementById("slipRemarkRow").style.display = "flex";
+
+          if (lang === "kh") {
+            document.getElementById("slipTitleText").textContent =
+              "ផ្ទេរប្រាក់ជោគជ័យ";
+            document.getElementById("lblTo").textContent = "ទៅកាន់";
+          } else {
+            document.getElementById("slipTitleText").textContent =
+              "Transfer Successful";
+            document.getElementById("lblTo").textContent = "To Name";
+          }
+        }
+        document.getElementById("slipModal").style.display = "flex";
+      }
+
+      function saveSlipImage() {
+        html2canvas(document.getElementById("captureArea"), { scale: 2 }).then(
+          (canvas) => {
+            const link = document.createElement("a");
+            link.download = `U-Pay-Slip-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+          },
+        );
+      }
+    </script>
+  </body>
+</html>

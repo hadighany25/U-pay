@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scan QR - U-Pay</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script
+      src="https://unpkg.com/html5-qrcode"
+      type="text/javascript"
+    ></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      body {
+        background-color: #000;
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        overflow: hidden;
+      }
+
+      /* [FIXED CSS] ការពារ ICON កុំឱ្យបាត់ */
+      body.kh-font .scan-title,
+      body.kh-font .scan-text,
+      body.kh-font .control-label,
+      body.kh-font h3,
+      body.kh-font p,
+      body.kh-font button,
+      body.kh-font span {
+        font-family: "Kantumruy Pro", sans-serif !important;
+      }
+
+      /* បញ្ជាឱ្យ Icon ប្រើ Font របស់វាដាច់ខាត */
+      body.kh-font .fa,
+      body.kh-font .fas,
+      body.kh-font .fa-solid,
+      body.kh-font .fa-regular,
+      body.kh-font .fa-brands {
+        font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+        font-weight: 900 !important;
+      }
+
+      .app-container {
+        max-width: 450px;
+        margin: 0 auto;
+        height: 100vh;
+        position: relative;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+      }
+      .scan-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 20;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+      }
+      .scan-header a,
+      .scan-title {
+        color: white;
+        text-decoration: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      #reader {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      #reader__dashboard_section_csr button,
+      #reader__dashboard_section_swaplink {
+        display: none !important;
+      }
+
+      .scan-overlay-ui {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .scan-frame {
+        width: 260px;
+        height: 260px;
+        position: relative;
+        border-radius: 30px;
+        box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
+      }
+      .corner {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-color: #00b894;
+        border-style: solid;
+        border-width: 5px;
+      }
+      .tl {
+        top: 0;
+        left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-top-left-radius: 20px;
+      }
+      .tr {
+        top: 0;
+        right: 0;
+        border-left: 0;
+        border-bottom: 0;
+        border-top-right-radius: 20px;
+      }
+      .bl {
+        bottom: 0;
+        left: 0;
+        border-right: 0;
+        border-top: 0;
+        border-bottom-left-radius: 20px;
+      }
+      .br {
+        bottom: 0;
+        right: 0;
+        border-left: 0;
+        border-top: 0;
+        border-bottom-right-radius: 20px;
+      }
+      .scan-laser {
+        width: 100%;
+        height: 3px;
+        background: #00b894;
+        box-shadow: 0 0 15px #00b894;
+        position: absolute;
+        top: 0;
+        animation: scanMove 2s infinite ease-in-out;
+      }
+      @keyframes scanMove {
+        0% {
+          top: 20px;
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          top: 240px;
+          opacity: 0;
+        }
+      }
+      .scan-text {
+        color: white;
+        margin-top: 30px;
+        font-size: 1rem;
+        text-shadow: 0 2px 4px black;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 8px 16px;
+        border-radius: 20px;
+      }
+
+      .scan-controls {
+        position: absolute;
+        bottom: 50px;
+        width: 100%;
+        z-index: 20;
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        align-items: center;
+      }
+      .control-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+      .control-btn {
+        width: 55px;
+        height: 55px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        transition: 0.2s;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .control-btn:active {
+        transform: scale(0.9);
+        background: rgba(255, 255, 255, 0.4);
+      }
+      .control-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-shadow: 0 1px 3px black;
+      }
+
+      .qr-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        z-index: 100;
+        flex-direction: column;
+        animation: slideUp 0.3s ease-out;
+      }
+      .qr-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #004d40 0%, #00251a 100%);
+      }
+      .qr-box {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 25px;
+        text-align: center;
+        color: #333;
+        width: 300px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+      .close-qr {
+        position: absolute;
+        top: 25px;
+        left: 25px;
+        color: white;
+        font-size: 1.8rem;
+        cursor: pointer;
+        z-index: 101;
+      }
+      .qr-logo-img {
+        height: 80px;
+        margin-bottom: 20px;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <div id="reader"></div>
+      <div class="scan-header">
+        <a href="dashboard.html"><i class="fa-solid fa-xmark"></i></a>
+        <span class="scan-title" data-i18n="scan_title">Scan QR Code</span>
+        <div style="width: 20px"></div>
+      </div>
+      <div class="scan-overlay-ui">
+        <div class="scan-frame">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="scan-laser"></div>
+        </div>
+        <div class="scan-text" data-i18n="scan_instruction">
+          Align QR code within frame
+        </div>
+      </div>
+      <div class="scan-controls">
+        <div
+          class="control-item"
+          onclick="document.getElementById('qr-input-file').click()"
+        >
+          <div class="control-btn"><i class="fa-regular fa-image"></i></div>
+          <span class="control-label" data-i18n="btn_gallery">Gallery</span>
+        </div>
+        <div class="control-item" onclick="showMyQR()">
+          <div
+            class="control-btn"
+            style="
+              background: #00b894;
+              color: #004d40;
+              border: none;
+              box-shadow: 0 0 20px rgba(0, 184, 148, 0.4);
+            "
+          >
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <span class="control-label" data-i18n="btn_my_qr">My QR</span>
+        </div>
+        <div class="control-item" onclick="toggleFlash()">
+          <div class="control-btn" id="flashBtn">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <span class="control-label">Flash</span>
+        </div>
+      </div>
+      <input
+        type="file"
+        id="qr-input-file"
+        accept="image/*"
+        style="display: none"
+      />
+    </div>
+
+    <div id="qrModal" class="qr-modal">
+      <i class="fa-solid fa-xmark close-qr" onclick="closeMyQR()"></i>
+      <div class="qr-card">
+        <div class="qr-box" id="myQRContent">
+          <img src="images/logo.png" class="qr-logo-img" />
+          <h3 id="qrUserName" style="margin: 0; color: #000; font-size: 1.4rem">
+            User Name
+          </h3>
+          <p
+            id="qrUserAcc"
+            style="
+              margin: 5px 0 20px 0;
+              color: #555;
+              font-family: monospace;
+              font-size: 1.1rem;
+              letter-spacing: 1px;
+            "
+          >
+            000 000 000
+          </p>
+          <img
+            id="myQrImg"
+            src=""
+            style="width: 240px; height: 240px; margin-bottom: 10px"
+          />
+          <p style="font-size: 0.85rem; color: #888" data-i18n="my_qr_title">
+            Scan to pay me
+          </p>
+        </div>
+        <button
+          onclick="downloadMyQR()"
+          style="
+            margin-top: 40px;
+            background: white;
+            color: #004d40;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+          "
+        >
+          <i class="fa-solid fa-download"></i>
+          <span data-i18n="save_qr">Save QR</span>
+        </button>
+      </div>
+    </div>
+
+    <script src="js/lang.js"></script>
+    <script>
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) window.location.href = "index.html";
+
+      document.getElementById("qrUserName").textContent = user.username;
+      document.getElementById("qrUserAcc").textContent =
+        user.accountNumber.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
+      document.getElementById("myQrImg").src =
+        `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${user.accountNumber}`;
+
+      let html5QrcodeScanner;
+
+      function onScanSuccess(decodedText, decodedResult) {
+        html5QrcodeScanner.clear();
+        new Audio(
+          "https://notificationsounds.com/storage/sounds/file-sounds-1148-juntos.mp3",
+        ).play();
+
+        const isNumeric = /^\d+$/.test(decodedText);
+        const isUserAcc = decodedText.length >= 9 && decodedText.length <= 12;
+
+        if (isNumeric && isUserAcc) {
+          window.location.href = `transfer.html?mode=transfer&acc=${decodedText}&lock=true`;
+        } else {
+          window.location.href = `transfer.html?mode=payment&billId=${decodedText}&lock=true`;
+        }
+      }
+
+      function startCamera() {
+        html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+          fps: 10,
+          qrbox: 250,
+          aspectRatio: 1.77,
+        });
+        html5QrcodeScanner.render(onScanSuccess, () => {});
+      }
+      startCamera();
+
+      let isFlashOn = false;
+      async function toggleFlash() {
+        isFlashOn = !isFlashOn;
+        const btn = document.getElementById("flashBtn");
+        btn.style.background = isFlashOn ? "white" : "rgba(255,255,255,0.25)";
+        btn.style.color = isFlashOn ? "#000" : "white";
+        if (isFlashOn)
+          Swal.fire({
+            toast: true,
+            position: "top",
+            title: "Flash depends on device.",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+      }
+
+      document
+        .getElementById("qr-input-file")
+        .addEventListener("change", (e) => {
+          if (e.target.files.length == 0) return;
+          new Html5Qrcode("reader")
+            .scanFile(e.target.files[0], true)
+            .then(onScanSuccess)
+            .catch((err) => Swal.fire({ icon: "error", title: "No QR Found" }));
+        });
+
+      function showMyQR() {
+        document.getElementById("qrModal").style.display = "flex";
+      }
+      function closeMyQR() {
+        document.getElementById("qrModal").style.display = "none";
+      }
+      function downloadMyQR() {
+        html2canvas(document.getElementById("myQRContent")).then((canvas) => {
+          const link = document.createElement("a");
+          link.download = `U-Pay-QR-${user.username}.png`;
+          link.href = canvas.toDataURL();
+          link.click();
+        });
+      }
+    </script>
+  </body>
+</html>
