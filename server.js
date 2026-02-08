@@ -8,8 +8,9 @@ const PORT = process.env.PORT || 3000;
 
 // 🔥🔥🔥 ដាក់ LINK DATABASE របស់បងនៅទីនេះ (ជំនួសកន្លែង <db_password> ជាមួយលេខកូដពិត)
 // Link នេះមានឈ្មោះ hadighany25_db_user និងលេខកូដត្រូវហើយ
+// Link នេះអូនដាក់ឈ្មោះ admin88 និងលេខកូដ Admin12345678 ឱ្យហើយ
 const MONGODB_URI =
-  "mongodb+srv://hadighany25_db_user:9c8LrvOSWkamJiYM@cluster0.htkcu39.mongodb.net/u-pay-db?appName=Cluster0";
+  "mongodb+srv://admin88:Admin12345678@cluster0.htkcu39.mongodb.net/u-pay-db?appName=Cluster0";
 // ភ្ជាប់ទៅ MongoDB Atlas
 mongoose
   .connect(MONGODB_URI)
