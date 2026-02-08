@@ -4,78 +4,232 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - U-Pay</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", "Kantumruy Pro", sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      }
+      .container {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        animation: fadeIn 0.5s;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .brand-logo img {
+        width: 140px;
+        margin-bottom: 0px; /* <--- កែពី 15px មក 0px ឬ 5px */
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+      }
+      h2 {
+        color: #004d40;
+        margin-top: 0; /* <--- ថែមបន្ទាត់នេះសំខាន់ណាស់! */
+        margin-bottom: 5px;
+        font-weight: 700;
+      }
+      .input-group {
+        position: relative;
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .input-group label {
+        display: block;
+        font-size: 0.9rem;
+        color: #333;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      /* កែប្រែផ្នែកនេះទាំងស្រុង */
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center; /* ដាក់ឱ្យនៅកណ្តាល ស្មើរលើក្រោម */
+      }
+
+      .input-wrapper i {
+        position: absolute;
+        left: 15px;
+        color: #00b894;
+        font-size: 1rem; /* កំណត់ទំហំ Icon ឱ្យច្បាស់ */
+        z-index: 10; /* ឱ្យនៅពីលើ Input */
+      }
+
+      input {
+        width: 100%;
+        padding: 14px 15px 14px 45px; /* កន្លែងនេះទុកដដែល */
+        border: 2px solid #eee;
+        border-radius: 12px;
+        font-size: 1rem;
+        outline: none;
+        transition: 0.3s;
+        background: #fafafa;
+        height: 50px; /* កំណត់កម្ពស់ឱ្យច្បាស់លាស់ */
+      }
+      .btn-primary {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(90deg, #004d40 0%, #00695c 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(0, 77, 64, 0.3);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+      }
+      .footer-link {
+        margin-top: 25px;
+        font-size: 0.9rem;
+        color: #666;
+      }
+      .footer-link a {
+        color: #004d40;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .spinner {
+        display: none;
+        margin-left: 10px;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
-      <div class="header-section">
-        <div class="brand-logo">
-          <span class="logo-icon">U</span><span class="logo-text">Pay</span>
-        </div>
-        <h2>Welcome Back</h2>
+      <div class="brand-logo">
+        <img src="images/logo-removebg.png" alt="U-Pay Logo" />
       </div>
+      <h2>Welcome Back</h2>
+      <p style="color: #666; margin-top: 0; margin-bottom: 25px">
+        Login to manage your account
+      </p>
+
       <form id="loginForm">
         <div class="input-group">
           <label>Username</label>
-          <input
-            type="text"
-            id="username"
-            placeholder="Enter username"
-            required
-          />
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user"></i
+            ><input
+              type="text"
+              id="username"
+              placeholder="Your username"
+              required
+            />
+          </div>
         </div>
         <div class="input-group">
           <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter password"
-            required
-          />
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i
+            ><input
+              type="password"
+              id="password"
+              placeholder="Your password"
+              required
+            />
+          </div>
         </div>
-        <button type="submit" class="btn-primary">Login</button>
+
+        <button type="submit" class="btn-primary" id="loginBtn">
+          Login <i class="fa-solid fa-right-to-bracket spinner"></i>
+        </button>
       </form>
+
       <div class="footer-link">
-        <p>New to U-Pay? <a href="register.html">Create Account</a></p>
+        <p>Don't have an account? <a href="register.html">Create account</a></p>
       </div>
     </div>
 
-    <div id="toast"></div>
-
-    <script src="js/toast.js"></script>
     <script>
       document
         .getElementById("loginForm")
-        .addEventListener("submit", async (e) => {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
-          const username = document.getElementById("username").value;
+          const username = document.getElementById("username").value.trim();
           const password = document.getElementById("password").value;
+          const btn = document.getElementById("loginBtn");
+
+          btn.disabled = true;
+          btn.innerHTML =
+            'Checking... <i class="fa-solid fa-spinner fa-spin"></i>';
 
           try {
-            const response = await fetch("/api/login", {
+            const res = await fetch("/api/login", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ username, password }),
             });
+            const data = await res.json();
 
-            const data = await response.json();
             if (data.success) {
               localStorage.setItem("user", JSON.stringify(data.user));
-              showToast("Login Successful!", "success");
+
+              const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              Toast.fire({ icon: "success", title: "Login Successful" });
 
               setTimeout(() => {
-                // ពិនិត្យ Role
-                if (data.user.role === "admin") {
-                  window.location.href = "admin.html"; // ទៅ Admin Panel
-                } else {
-                  window.location.href = "dashboard.html"; // ទៅ Dashboard ធម្មតា
-                }
-              }, 1500);
+                if (data.user.role === "admin")
+                  window.location.href = "admin.html";
+                else window.location.href = "dashboard.html";
+              }, 1000);
             } else {
-              showToast(data.message, "error");
+              Swal.fire({
+                icon: "error",
+                title: "Login Failed",
+                text: "Invalid username or password",
+              });
+              btn.disabled = false;
+              btn.innerHTML = "Login";
             }
-          } catch (error) {
-            showToast("Server connection error", "error");
+          } catch (err) {
+            console.error(err);
+            Swal.fire({
+              icon: "error",
+              title: "Connection Error",
+              text: "Cannot connect to server",
+            });
+            btn.disabled = false;
+            btn.innerHTML = "Login";
           }
         });
     </script>
