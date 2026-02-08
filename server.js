@@ -1,38 +1,39 @@
 const express = require("express");
-const mongoose = require("mongoose"); // ហៅ Mongoose មកប្រើ
+const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
 
 // --- 1. CONFIGURATION ---
 const PORT = process.env.PORT || 3000;
 
-// 🔥🔥🔥 ដាក់ LINK DATABASE របស់បងនៅទីនេះ (ជំនួសកន្លែង <db_password> ជាមួយលេខកូដពិត)
-// Link នេះមានឈ្មោះ hadighany25_db_user និងលេខកូដត្រូវហើយ
-// Link នេះអូនដាក់ឈ្មោះ admin88 និងលេខកូដ Admin12345678 ឱ្យហើយ
+// 🔥 Link MongoDB របស់បង (admin88)
 const MONGODB_URI =
   "mongodb+srv://admin88:Admin12345678@cluster0.htkcu39.mongodb.net/u-pay-db?appName=Cluster0";
-// ភ្ជាប់ទៅ MongoDB Atlas
+
 mongoose
   .connect(MONGODB_URI)
   .then(() => console.log("✅ Connected to MongoDB Atlas"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// Middleware
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static("public"));
 
-// --- 2. DATABASE MODELS (Schema) ---
-// បង្កើតប្លង់ទិន្នន័យសម្រាប់ User នីមួយៗ
+// --- 2. DATABASE MODELS ---
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   pin: { type: String, default: "1234" },
   balance: { type: Number, default: 0.0 },
   accountNumber: { type: String, unique: true },
-  role: { type: String, default: "user" }, // 'user' or 'admin'
-  profileImage: { type: String, default: null },
-  transactions: { type: Array, default: [] }, // ទុកប្រវត្តិ
+  role: { type: String, default: "user" },
+
+  // 🔥 New Status Fields (សម្រាប់ Admin)
+  isFrozen: { type: Boolean, default: false }, // គណនីត្រូវបានបង្កក?
+  pinAttempts: { type: Number, default: 0 }, // ចំនួនវាយ PIN ខុស
+  lastActive: { type: Date, default: Date.now }, // សម្រាប់ឆែក Online/Offline
+
+  transactions: { type: Array, default: [] },
 });
 
 const User = mongoose.model("User", userSchema);
@@ -51,19 +52,16 @@ const getFormattedDate = () => {
   });
 };
 
-// --- 4. API ROUTES (Async/Await) ---
+// --- 4. API ROUTES ---
 
 // [AUTH] Register
 app.post("/api/register", async (req, res) => {
   try {
     const { username, password } = req.body;
-
-    // ឆែកមើលថាឈ្មោះជាន់គ្នាអត់?
     const existingUser = await User.findOne({ username });
     if (existingUser)
       return res.json({ success: false, message: "Username នេះមានគេប្រើហើយ" });
 
-    // បង្កើតលេខគណនី Random
     let accNum;
     let isUnique = false;
     while (!isUnique) {
@@ -72,19 +70,16 @@ app.post("/api/register", async (req, res) => {
       if (!checkAcc) isUnique = true;
     }
 
-    // បង្កើត User ថ្មីក្នុង Database
     const newUser = new User({
       username,
       password,
       accountNumber: accNum,
       balance: 0.0,
     });
-
-    await newUser.save(); // រក្សាទុកចូល MongoDB
-    res.json({ success: true, message: "ចុះឈ្មោះជោគជ័យ", user: newUser });
+    await newUser.save();
+    res.json({ success: true, message: "Account created!", user: newUser });
   } catch (err) {
-    console.error(err);
-    res.json({ success: false, message: "Server Error" });
+    res.json({ success: false, message: "Error" });
   }
 });
 
@@ -93,7 +88,7 @@ app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Admin Hardcoded
+    // Admin Login
     if (username === "admin" && password === "123") {
       return res.json({
         success: true,
@@ -101,10 +96,13 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
-    // រកមើល User ក្នុង DB
     const user = await User.findOne({ username, password });
-
     if (user) {
+      // Update Status
+      user.lastActive = new Date();
+      user.pinAttempts = 0; // Reset PIN attempts on success
+      await user.save();
+
       res.json({ success: true, user });
     } else {
       res.json({ success: false, message: "ឈ្មោះ ឬ លេខសម្ងាត់មិនត្រឹមត្រូវ" });
@@ -114,72 +112,135 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// [ADMIN] Get All Users
-app.get("/api/users", async (req, res) => {
+// 🔥 [SYSTEM] Heartbeat (សម្រាប់ប្រាប់ថា Online)
+app.post("/api/heartbeat", async (req, res) => {
   try {
-    const users = await User.find({}, "-password -pin"); // យកទាំងអស់ តែដក password/pin ចេញ
-    res.json(users);
-  } catch (err) {
-    res.json([]);
-  }
-});
-
-// [ADMIN] Update User
-app.post("/api/admin/update", async (req, res) => {
-  try {
-    const { id, newName, newBalance, newAccountNum } = req.body;
-    // ចំណាំ: MongoDB ប្រើ _id មិនមែន id ទេ តែដើម្បីងាយស្រួលយើងរកតាម username ឬ acc វិញល្អជាង
-    // ក្នុងករណីនេះយើងសន្មតថា Front-end ផ្ញើ _id មក (ឬយើងកែតាម Account Number)
-
-    // *ដើម្បីងាយស្រួលសម្រាប់កូដចាស់ យើងរកតាម Account Number ចាស់*
-    // ប៉ុន្តែល្អបំផុតគឺប្រើ _id. ឥឡូវសាកល្បង Update តាមគណនីសិន
-
-    res.json({
-      success: false,
-      message:
-        "មុខងារនេះត្រូវការកែសម្រួល Front-end បន្តិចដើម្បីស្គាល់ ID របស់ MongoDB",
-    });
+    const { username } = req.body;
+    await User.findOneAndUpdate({ username }, { lastActive: new Date() });
+    res.json({ success: true });
   } catch (err) {
     res.json({ success: false });
   }
 });
 
-// [TRANSACTION] Transfer
+// [ADMIN] Get All Users (With Online Logic)
+app.get("/api/users", async (req, res) => {
+  try {
+    const users = await User.find({}, "-password -pin").sort({ _id: -1 });
+    const now = new Date();
+
+    // Add isOnline property dynamically
+    const usersWithStatus = users.map((u) => {
+      const diff = (now - new Date(u.lastActive)) / 1000; // seconds
+      return {
+        ...u.toObject(),
+        isOnline: diff < 30, // Online if active in last 30s
+      };
+    });
+
+    res.json(usersWithStatus);
+  } catch (err) {
+    res.json([]);
+  }
+});
+
+// [ADMIN] Update User & Freeze
+app.post("/api/admin/update", async (req, res) => {
+  try {
+    const { id, username, balance, accountNumber, isFrozen } = req.body;
+    const updateData = {
+      username,
+      balance: parseFloat(balance),
+      accountNumber,
+      isFrozen: isFrozen,
+    };
+
+    // បើ Admin ដោះសោរ (Unfreeze) -> Reset PIN count
+    if (isFrozen === false) {
+      updateData.pinAttempts = 0;
+    }
+
+    await User.findByIdAndUpdate(id, updateData);
+    res.json({ success: true, message: "Update Success" });
+  } catch (err) {
+    res.json({ success: false, message: "Update Failed" });
+  }
+});
+
+// [SERVICE] Check Account (ពេលវេរលុយ)
+app.post("/api/check-account", async (req, res) => {
+  try {
+    const { accountNumber } = req.body;
+    const user = await User.findOne({ accountNumber });
+    if (user) res.json({ success: true, username: user.username });
+    else res.json({ success: false, message: "Not found" });
+  } catch (err) {
+    res.json({ success: false });
+  }
+});
+
+// [TRANSACTION] Transfer Money
 app.post("/api/transfer", async (req, res) => {
   try {
     const { senderUsername, receiverAccount, amount, remark, pin } = req.body;
     const transferAmount = parseFloat(amount);
-
     const sender = await User.findOne({ username: senderUsername });
     const receiver = await User.findOne({ accountNumber: receiverAccount });
 
-    if (!sender)
-      return res.json({ success: false, message: "រកមិនឃើញអ្នកផ្ញើ" });
-    if (!receiver)
-      return res.json({ success: false, message: "រកមិនឃើញលេខគណនីអ្នកទទួល" });
-    if (sender.accountNumber === receiverAccount)
-      return res.json({ success: false, message: "មិនអាចផ្ទេរចូលខ្លួនឯង" });
-    if (sender.balance < transferAmount)
-      return res.json({ success: false, message: "ប្រាក់មិនគ្រប់គ្រាន់" });
-    if (sender.pin !== pin)
-      return res.json({ success: false, message: "PIN មិនត្រឹមត្រូវ" });
+    if (!sender) return res.json({ success: false, message: "User Error" });
 
-    // Update Balance
+    // Update Active Time
+    sender.lastActive = new Date();
+    await sender.save();
+
+    // 1. Check Freeze
+    if (sender.isFrozen)
+      return res.json({
+        success: false,
+        message: "គណនីត្រូវបានបង្កក! (Account Frozen)",
+      });
+
+    // 2. Check PIN & Attempts
+    if (sender.pin !== pin) {
+      sender.pinAttempts += 1;
+      if (sender.pinAttempts >= 3) {
+        sender.isFrozen = true;
+        await sender.save();
+        return res.json({
+          success: false,
+          message: "PIN ខុស 3 ដង! គណនីត្រូវបានបង្កក។",
+        });
+      }
+      await sender.save();
+      return res.json({
+        success: false,
+        message: `PIN ខុស! (សល់ ${3 - sender.pinAttempts} ដង)`,
+      });
+    }
+    sender.pinAttempts = 0; // Reset if correct
+
+    // 3. Validation
+    if (!receiver)
+      return res.json({ success: false, message: "រកមិនឃើញអ្នកទទួល" });
+    if (sender.accountNumber === receiverAccount)
+      return res.json({ success: false, message: "មិនអាចវេរចូលខ្លួនឯង" });
+    if (sender.balance < transferAmount)
+      return res.json({ success: false, message: "អត់លុយគ្រប់គ្រាន់" });
+
+    // 4. Process
     sender.balance -= transferAmount;
     receiver.balance += transferAmount;
 
     const date = getFormattedDate();
     const refId = "TRX" + Date.now().toString().slice(-8);
-    const note = remark || "General Transfer";
 
-    // Add Transaction Records
     sender.transactions.unshift({
       type: "Transfer Out",
       amount: -transferAmount,
       date,
       partner: receiver.username,
       partnerAcc: receiverAccount,
-      remark: note,
+      remark,
       refId,
     });
     receiver.transactions.unshift({
@@ -188,46 +249,66 @@ app.post("/api/transfer", async (req, res) => {
       date,
       partner: sender.username,
       partnerAcc: sender.accountNumber,
-      remark: note,
+      remark,
       refId,
     });
 
-    // Save both to DB
     await sender.save();
     await receiver.save();
 
     res.json({
       success: true,
-      message: "ផ្ទេរប្រាក់ជោគជ័យ!",
+      message: "ជោគជ័យ!",
       newBalance: sender.balance,
       slipData: { ...sender.transactions[0], senderName: sender.username },
     });
   } catch (err) {
-    console.error(err);
-    res.json({ success: false, message: "Transaction Failed" });
+    res.json({ success: false, message: "Failed" });
   }
 });
 
-// [TRANSACTION] Payment
+// [TRANSACTION] Bill Payment
 app.post("/api/payment", async (req, res) => {
   try {
     const { username, billerName, billId, amount, pin } = req.body;
     const payAmount = parseFloat(amount);
-
     const user = await User.findOne({ username });
 
     if (!user) return res.json({ success: false, message: "User Error" });
-    if (user.balance < payAmount)
-      return res.json({ success: false, message: "ប្រាក់មិនគ្រប់គ្រាន់" });
-    if (user.pin !== pin)
+
+    // Active Update
+    user.lastActive = new Date();
+    await user.save();
+
+    // Freeze Check
+    if (user.isFrozen)
+      return res.json({ success: false, message: "គណនីត្រូវបានបង្កក!" });
+
+    // PIN Check
+    if (user.pin !== pin) {
+      user.pinAttempts += 1;
+      if (user.pinAttempts >= 3) {
+        user.isFrozen = true;
+        await user.save();
+        return res.json({
+          success: false,
+          message: "PIN ខុស 3 ដង! គណនីត្រូវបានបង្កក។",
+        });
+      }
+      await user.save();
       return res.json({ success: false, message: "PIN មិនត្រឹមត្រូវ" });
+    }
+    user.pinAttempts = 0;
 
+    if (user.balance < payAmount)
+      return res.json({ success: false, message: "អត់លុយគ្រប់គ្រាន់" });
+
+    // Process
     user.balance -= payAmount;
-
     const date = getFormattedDate();
     const refId = "PAY" + Date.now().toString().slice(-8);
 
-    const trxRecord = {
+    const record = {
       type: "Bill Payment",
       amount: -payAmount,
       date,
@@ -235,18 +316,17 @@ app.post("/api/payment", async (req, res) => {
       remark: `Bill: ${billId}`,
       refId,
     };
-
-    user.transactions.unshift(trxRecord);
+    user.transactions.unshift(record);
     await user.save();
 
     res.json({
       success: true,
       message: "បង់វិក្កយបត្រជោគជ័យ",
       newBalance: user.balance,
-      slipData: { ...trxRecord, senderName: user.username, billId },
+      slipData: { ...record, senderName: user.username, billId },
     });
   } catch (err) {
-    res.json({ success: false, message: "Payment Failed" });
+    res.json({ success: false, message: "Failed" });
   }
 });
 
@@ -277,10 +357,12 @@ app.post("/api/change-pin", async (req, res) => {
     if (!user) return res.json({ success: false, message: "User not found" });
     if (user.password !== password)
       return res.json({ success: false, message: "Password ខុស" });
-    if (!/^\d{4}$/.test(newPin))
-      return res.json({ success: false, message: "PIN ត្រូវតែ 4 ខ្ទង់" });
 
     user.pin = newPin;
+    // Reset attempts when PIN is changed successfully
+    user.pinAttempts = 0;
+    user.isFrozen = false;
+
     await user.save();
     res.json({ success: true, message: "ប្តូរ PIN ជោគជ័យ" });
   } catch (err) {
@@ -288,19 +370,5 @@ app.post("/api/change-pin", async (req, res) => {
   }
 });
 
-// [CHECK] Account Check
-app.post("/api/check-account", async (req, res) => {
-  try {
-    const { accountNumber } = req.body;
-    const user = await User.findOne({ accountNumber });
-    if (user) res.json({ success: true, username: user.username });
-    else res.json({ success: false, message: "User not found" });
-  } catch (err) {
-    res.json({ success: false });
-  }
-});
-
 // --- Start Server ---
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
