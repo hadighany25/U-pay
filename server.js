@@ -7,9 +7,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 🔥🔥🔥 ដាក់ LINK DATABASE របស់បងនៅទីនេះ (ជំនួសកន្លែង <db_password> ជាមួយលេខកូដពិត)
+// Link នេះមានឈ្មោះ hadighany25_db_user និងលេខកូដត្រូវហើយ
 const MONGODB_URI =
-  "mongodb+srv://admin:<db_password>@cluster0.htkcu39.mongodb.net/u-pay-db?appName=Cluster0";
-
+  "mongodb+srv://hadighany25_db_user:9c8LrvOSWkamJiYM@cluster0.htkcu39.mongodb.net/u-pay-db?appName=Cluster0";
 // ភ្ជាប់ទៅ MongoDB Atlas
 mongoose
   .connect(MONGODB_URI)
