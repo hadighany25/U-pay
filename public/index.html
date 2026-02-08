@@ -49,12 +49,11 @@
 
       .brand-logo img {
         width: 140px;
-        margin-bottom: 0px; /* <--- កែពី 15px មក 0px ឬ 5px */
+        margin-bottom: 15px;
         filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
       }
       h2 {
         color: #004d40;
-        margin-top: 0; /* <--- ថែមបន្ទាត់នេះសំខាន់ណាស់! */
         margin-bottom: 5px;
         font-weight: 700;
       }
@@ -70,31 +69,33 @@
         margin-bottom: 8px;
         font-weight: 600;
       }
-      /* កែប្រែផ្នែកនេះទាំងស្រុង */
       .input-wrapper {
         position: relative;
         display: flex;
-        align-items: center; /* ដាក់ឱ្យនៅកណ្តាល ស្មើរលើក្រោម */
+        align-items: center;
       }
-
       .input-wrapper i {
         position: absolute;
         left: 15px;
         color: #00b894;
-        font-size: 1rem; /* កំណត់ទំហំ Icon ឱ្យច្បាស់ */
-        z-index: 10; /* ឱ្យនៅពីលើ Input */
+        font-size: 1rem;
+        z-index: 10;
       }
-
       input {
         width: 100%;
-        padding: 14px 15px 14px 45px; /* កន្លែងនេះទុកដដែល */
+        padding: 14px 15px 14px 45px;
         border: 2px solid #eee;
         border-radius: 12px;
         font-size: 1rem;
         outline: none;
         transition: 0.3s;
         background: #fafafa;
-        height: 50px; /* កំណត់កម្ពស់ឱ្យច្បាស់លាស់ */
+        height: 50px;
+      }
+      input:focus {
+        border-color: #00b894;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 184, 148, 0.1);
       }
       .btn-primary {
         width: 100%;
@@ -171,11 +172,14 @@
       </form>
 
       <div class="footer-link">
-        <p>Don't have an account? <a href="register.html">Create account</a></p>
+        <p>Don't have an account? <a href="register.html">Create one</a></p>
       </div>
     </div>
 
     <script>
+      // 🔥🔥🔥 សំខាន់ណាស់: លុប User ចាស់ចោលរាល់ពេលចូលទំព័រនេះ
+      localStorage.removeItem("user");
+
       document
         .getElementById("loginForm")
         .addEventListener("submit", async function (e) {
@@ -197,6 +201,7 @@
             const data = await res.json();
 
             if (data.success) {
+              // ✅ ទុក User ថ្មីចូលក្នុង Memory
               localStorage.setItem("user", JSON.stringify(data.user));
 
               const Toast = Swal.mixin({
@@ -216,7 +221,7 @@
               Swal.fire({
                 icon: "error",
                 title: "Login Failed",
-                text: "Invalid username or password",
+                text: "ឈ្មោះ ឬ លេខសម្ងាត់មិនត្រឹមត្រូវ",
               });
               btn.disabled = false;
               btn.innerHTML = "Login";
