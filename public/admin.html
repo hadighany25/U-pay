@@ -3,33 +3,112 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - U-Pay</title>
-
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <title>U-PAY Admin Panel</title>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+      :root {
+        --primary: #004d40;
+        --sidebar-bg: #00251a;
+        --bg-light: #f4f6f8;
+        --white: #ffffff;
+        --text: #333;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Kantumruy Pro", sans-serif;
+      }
+
       body {
         margin: 0;
-        font-family: "Segoe UI", sans-serif;
-        background: #f4f6f8;
+        background-color: var(--bg-light);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
       }
 
-      /* Font Logic */
-      .kh-text {
-        font-family: "Kantumruy Pro", sans-serif !important;
+      /* --- SIDEBAR --- */
+      .sidebar {
+        width: 260px;
+        background-color: var(--sidebar-bg);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
       }
 
-      /* --- ANIMATIONS --- */
+      .logo {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #00b894;
+      }
+
+      .menu-btn {
+        background: none;
+        border: none;
+        color: #b2dfdb;
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 10px;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: 0.3s;
+      }
+
+      .menu-btn:hover,
+      .menu-btn.active {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-weight: bold;
+      }
+
+      .logout-btn {
+        margin-top: auto;
+        background: #d32f2f;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        border: none;
+        font-weight: bold;
+      }
+
+      /* --- MAIN CONTENT --- */
+      .main-content {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+      }
+
+      .page-section {
+        display: none;
+        animation: fadeIn 0.4s;
+      }
+      .page-section.active {
+        display: block;
+      }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -40,767 +119,604 @@
           transform: translateY(0);
         }
       }
-      @keyframes slideInRight {
-        from {
-          transform: translateX(50px);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-      @keyframes popUp {
-        0% {
-          transform: scale(0.95);
-          opacity: 0;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
 
-      .animate-fade {
-        animation: fadeIn 0.6s ease-out forwards;
-      }
-      .animate-delay-1 {
-        animation-delay: 0.1s;
-      }
-      .animate-delay-2 {
-        animation-delay: 0.2s;
-      }
-      .animate-delay-3 {
-        animation-delay: 0.3s;
-      }
-
-      /* Sidebar */
-      .sidebar {
-        width: 250px;
-        background: linear-gradient(180deg, #004d40 0%, #00251a 100%);
-        color: white;
-        position: fixed;
-        height: 100%;
-        top: 0;
-        left: 0;
-        padding-top: 20px;
-        z-index: 100;
-        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-      }
-      .sidebar h2 {
-        text-align: center;
-        margin-bottom: 40px;
-        letter-spacing: 1px;
-        font-weight: 700;
-      }
-      .sidebar a {
-        padding: 15px 25px;
-        display: block;
-        color: rgba(255, 255, 255, 0.8);
-        text-decoration: none;
-        transition: 0.3s;
-        font-size: 1.05rem;
-        border-left: 4px solid transparent;
-      }
-      .sidebar a:hover,
-      .sidebar a.active {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border-left: 4px solid #00b894;
-      }
-      .sidebar a i {
-        margin-right: 15px;
-        width: 25px;
-      }
-
-      /* Main Content */
-      .main-content {
-        margin-left: 250px;
-        padding: 30px;
-      }
       .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         margin-bottom: 30px;
       }
       .header h1 {
-        color: #333;
         margin: 0;
-        font-weight: 700;
+        color: var(--primary);
+        font-size: 2rem;
+      }
+      .header p {
+        color: #666;
+        margin: 5px 0 0;
       }
 
-      .logout-btn {
-        background: #fff;
-        color: #e71d36;
-        border: 1px solid #e71d36;
-        padding: 10px 25px;
-        border-radius: 30px;
-        cursor: pointer;
-        transition: 0.3s;
-        font-weight: bold;
-      }
-      .logout-btn:hover {
-        background: #e71d36;
-        color: white;
-        box-shadow: 0 4px 12px rgba(231, 29, 54, 0.3);
-      }
-
-      /* Cards */
+      /* --- DASHBOARD CARDS --- */
       .stats-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 25px;
-        margin-bottom: 30px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
       }
       .card {
         background: white;
         padding: 25px;
         border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         display: flex;
         align-items: center;
-        gap: 20px;
-        transition:
-          transform 0.3s,
-          box-shadow 0.3s;
-        cursor: default;
+        gap: 15px;
       }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-
-      .card-icon {
-        width: 65px;
-        height: 65px;
-        border-radius: 18px;
+      .icon-box {
+        width: 55px;
+        height: 55px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         color: white;
       }
-      .c-blue {
-        background: linear-gradient(135deg, #007bff, #0056b3);
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+      .blue {
+        background: #2980b9;
       }
-      .c-green {
-        background: linear-gradient(135deg, #28a745, #1e7e34);
-        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+      .green {
+        background: #27ae60;
       }
-      .c-orange {
-        background: linear-gradient(135deg, #fd7e14, #d35400);
-        box-shadow: 0 4px 10px rgba(253, 126, 20, 0.3);
+      .orange {
+        background: #d35400;
+      }
+      .purple {
+        background: #8e44ad;
       }
 
-      .card-info h3 {
+      .card-info h2 {
         margin: 0;
         font-size: 1.8rem;
         color: #333;
-        font-weight: 800;
       }
       .card-info p {
-        margin: 5px 0 0;
-        color: #888;
-        font-size: 0.9rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      /* Search Box */
-      .search-box {
-        background: white;
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 25px;
-        display: flex;
-        gap: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f0f0f0;
-        transition: 0.3s;
-      }
-      .search-box:focus-within {
-        border-color: #00b894;
-        box-shadow: 0 5px 20px rgba(0, 184, 148, 0.1);
-      }
-
-      .search-input {
-        flex: 1;
-        padding: 12px;
-        border: none;
-        font-size: 1.05rem;
-        outline: none;
-        background: transparent;
-      }
-      .btn-search {
-        background: #004d40;
-        color: white;
-        border: none;
-        padding: 10px 30px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .btn-search:hover {
-        background: #00382e;
-        transform: scale(1.05);
-      }
-
-      /* Table */
-      .table-container {
-        background: white;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-      }
-      .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-      }
-      .table-header h2 {
         margin: 0;
-        color: #444;
+        font-size: 0.85rem;
+        color: #777;
+        font-weight: bold;
       }
 
-      .btn-print {
-        background: #fff;
-        color: #00695c;
-        border: 2px solid #00695c;
-        padding: 8px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
+      /* --- USER TABLE --- */
+      .search-bar {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       }
-      .btn-print:hover {
-        background: #00695c;
-        color: white;
+      .search-bar input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       }
       th {
-        background: #f8f9fa;
-        color: #666;
-        font-weight: 600;
+        background: #004d40;
+        color: white;
         padding: 15px;
         text-align: left;
-        border-bottom: 2px solid #eee;
       }
       td {
         padding: 15px;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid #eee;
         color: #333;
-        transition: 0.2s;
-      }
-      tr {
-        transition: 0.2s;
-      }
-      tr:hover {
-        background-color: #fafffe;
-        transform: scale(1.005);
       }
 
-      .status-badge {
-        padding: 6px 12px;
+      .badge {
+        padding: 5px 10px;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
       }
-      .success {
+      .online {
         background: #d4edda;
         color: #155724;
       }
+      .offline {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .frozen {
+        background: #333;
+        color: white;
+      }
+      .active-user {
+        background: #cce5ff;
+        color: #004085;
+      }
 
-      /* MODALS */
-      .slip-overlay {
+      .btn-action {
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        color: white;
+        margin-right: 5px;
+      }
+      .edit {
+        background: #f39c12;
+      }
+      .freeze {
+        background: #c0392b;
+      }
+      .unfreeze {
+        background: #27ae60;
+      }
+
+      /* --- TRANSACTION SEARCH --- */
+      .trx-search-container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .trx-result {
+        margin-top: 30px;
+        text-align: left;
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+        display: none;
+      }
+
+      /* --- MODAL --- */
+      .modal {
         display: none;
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 1000;
+        background: rgba(0, 0, 0, 0.5);
         align-items: center;
         justify-content: center;
-        backdrop-filter: blur(5px);
-        animation: fadeIn 0.3s;
+        z-index: 100;
       }
-
-      .slip-box {
+      .modal-content {
         background: white;
-        width: 350px;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-        animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
-
-      /* DETAILS MODAL STYLE */
-      .detail-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 12px;
-        font-size: 0.95rem;
-      }
-      .detail-label {
-        color: #888;
-        font-size: 0.9rem;
-      }
-      .detail-val {
-        font-weight: 600;
-        color: #333;
-        text-align: right;
-      }
-      .divider {
-        height: 1px;
-        background: #eee;
-        margin: 15px 0;
-      }
-      .section-title {
-        font-size: 0.85rem;
-        color: #aaa;
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-bottom: 15px;
-        margin-top: 5px;
-        letter-spacing: 1px;
-      }
-
-      @media print {
-        .sidebar,
-        .logout-btn,
-        .btn-print,
-        .action-btn,
-        .search-box {
-          display: none !important;
-        }
-        .main-content {
-          margin: 0;
-          padding: 0;
-        }
-        .card {
-          border: 1px solid #ddd;
-          box-shadow: none;
-        }
+        padding: 30px;
+        border-radius: 15px;
+        width: 400px;
       }
     </style>
   </head>
   <body>
     <div class="sidebar">
-      <h2><i class="fa-solid fa-shield-halved"></i> U-PAY ADMIN</h2>
-      <a href="#" class="active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-      <a href="#"><i class="fa-solid fa-users"></i> Users</a>
-      <a href="#"
-        ><i class="fa-solid fa-money-bill-transfer"></i> Transactions</a
-      >
+      <div class="logo">
+        <i class="fa-solid fa-shield-halved"></i> U-PAY ADMIN
+      </div>
+
+      <button class="menu-btn active" onclick="showSection('dashboard', this)">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard
+      </button>
+      <button class="menu-btn" onclick="showSection('users', this)">
+        <i class="fa-solid fa-users-gear"></i> User Control
+      </button>
+      <button class="menu-btn" onclick="showSection('transactions', this)">
+        <i class="fa-solid fa-magnifying-glass"></i> Transactions
+      </button>
+
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
     <div class="main-content">
-      <div class="header animate-fade">
-        <h1>Overview</h1>
-        <button
-          class="logout-btn"
-          onclick="window.location.href = 'index.html'"
-        >
-          <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </button>
+      <div id="dashboard" class="page-section active">
+        <div class="header">
+          <h1>Dashboard Overview</h1>
+          <p>ទិន្នន័យសង្ខេបនៃប្រព័ន្ធ U-Pay</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="icon-box blue"><i class="fa-solid fa-users"></i></div>
+            <div class="card-info">
+              <h2 id="totalUsers">0</h2>
+              <p>TOTAL USERS</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="icon-box green">
+              <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+            <div class="card-info">
+              <h2 id="totalMoney">$0.00</h2>
+              <p>SYSTEM BALANCE</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="icon-box orange">
+              <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            </div>
+            <div class="card-info">
+              <h2 id="countOut">0</h2>
+              <p>TRANSFERS (OUT)</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="icon-box purple">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </div>
+            <div class="card-info">
+              <h2 id="countIn">0</h2>
+              <p>RECEIVED (IN)</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="stats-grid animate-fade animate-delay-1">
-        <div class="card">
-          <div class="card-icon c-blue"><i class="fa-solid fa-users"></i></div>
-          <div class="card-info">
-            <h3 id="totalUsers">0</h3>
-            <p>Total Users</p>
-          </div>
+      <div id="users" class="page-section">
+        <div class="header">
+          <h1>User Management</h1>
+          <p>គ្រប់គ្រងគណនី, Edit, និង បង្កកគណនី (Freeze)</p>
         </div>
-        <div class="card">
-          <div class="card-icon c-green">
-            <i class="fa-solid fa-sack-dollar"></i>
-          </div>
-          <div class="card-info">
-            <h3 id="totalMoney">$0.00</h3>
-            <p>System Balance</p>
-          </div>
+
+        <div class="search-bar">
+          <i
+            class="fa-solid fa-search"
+            style="color: #888; align-self: center"
+          ></i>
+          <input
+            type="text"
+            id="userSearch"
+            placeholder="🔍 បញ្ចូលលេខគណនីដើម្បីស្វែងរក (Search by Account Number)..."
+            onkeyup="filterUsers()"
+          />
         </div>
-        <div class="card">
-          <div class="card-icon c-orange"><i class="fa-solid fa-list"></i></div>
-          <div class="card-info">
-            <h3 id="totalTrx">0</h3>
-            <p>Transactions</p>
-          </div>
+
+        <div style="overflow-x: auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Account No</th>
+                <th>Balance</th>
+                <th>Online</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="search-box animate-fade animate-delay-2">
-        <i
-          class="fa-solid fa-magnifying-glass"
-          style="color: #999; align-self: center"
-        ></i>
-        <input
-          type="text"
-          id="trxSearchInput"
-          class="search-input"
-          placeholder="Search Transaction ID (e.g. TRX...)"
-        />
-        <button onclick="searchTransaction()" class="btn-search">
-          Search Details
-        </button>
-      </div>
-
-      <div class="table-container animate-fade animate-delay-3">
-        <div class="table-header">
-          <h2>Recent Transactions</h2>
-          <button class="btn-print" onclick="window.print()">
-            <i class="fa-solid fa-print"></i> Print Report
-          </button>
+      <div id="transactions" class="page-section">
+        <div class="header">
+          <h1>Transaction Search</h1>
+          <p>ស្វែងរកប្រតិបត្តិការចាស់ៗតាមរយៈ Transaction ID</p>
         </div>
-        <table id="trxTable">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Sender</th>
-              <th>Receiver/Type</th>
-              <th>Amount</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+
+        <div class="trx-search-container">
+          <i
+            class="fa-solid fa-receipt"
+            style="font-size: 3rem; color: #004d40; margin-bottom: 20px"
+          ></i>
+          <h3 style="margin-top: 0">Verify Transaction</h3>
+          <div style="display: flex; gap: 10px; margin-top: 20px">
+            <input
+              type="text"
+              id="trxInput"
+              placeholder="Enter TRX ID (e.g. TRX123...)"
+              style="
+                flex: 1;
+                padding: 12px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+              "
+            />
+            <button
+              onclick="searchTrx()"
+              style="
+                background: #004d40;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+              "
+            >
+              Search
+            </button>
+          </div>
+
+          <div id="trxResult" class="trx-result"></div>
+        </div>
       </div>
     </div>
 
-    <div id="slipModal" class="slip-overlay">
-      <div class="slip-box">
-        <div id="captureArea" style="background: white">
-          <div
-            style="
-              background: #004d40;
-              padding: 25px;
-              color: white;
-              text-align: center;
-            "
-          >
-            <h2 style="margin: 0">U-PAY</h2>
-            <p style="margin: 5px 0 0 0; opacity: 0.8; font-size: 0.9rem">
-              Transaction Slip
-            </p>
-          </div>
-          <div style="padding: 30px; text-align: left; color: #333">
-            <div style="text-align: center; margin-bottom: 25px">
-              <h1
-                style="margin: 0; font-size: 2.2rem; color: #004d40"
-                id="slipAmount"
-              >
-                $0.00
-              </h1>
-              <span
-                class="status-badge success"
-                style="margin-top: 10px; display: inline-block"
-                >COMPLETED</span
-              >
-            </div>
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <h2 style="margin-top: 0; color: #004d40">Edit User</h2>
+        <input type="hidden" id="editId" />
+        <input type="hidden" id="editFrozen" />
 
-            <div class="detail-row">
-              <span class="detail-label">Ref ID</span
-              ><span class="detail-val" id="slipRef">...</span>
-            </div>
-            <div class="divider"></div>
-            <div class="detail-row">
-              <span class="detail-label">From</span
-              ><span class="detail-val" id="slipSender">...</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">To/Type</span
-              ><span class="detail-val" id="slipReceiver">...</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Date</span
-              ><span class="detail-val" id="slipDate">...</span>
-            </div>
+        <p>
+          <strong>Username:</strong>
+          <input
+            type="text"
+            id="editName"
+            style="width: 100%; padding: 8px; margin-top: 5px"
+          />
+        </p>
+        <p>
+          <strong>Account:</strong>
+          <input
+            type="text"
+            id="editAcc"
+            readonly
+            style="width: 100%; padding: 8px; background: #eee; margin-top: 5px"
+          />
+        </p>
+        <p>
+          <strong>Balance ($):</strong>
+          <input
+            type="number"
+            id="editBal"
+            style="width: 100%; padding: 8px; margin-top: 5px"
+          />
+        </p>
 
-            <div style="text-align: center; margin-top: 30px">
-              <img src="images/logo.png" style="height: 35px; opacity: 0.6" />
-            </div>
-          </div>
-        </div>
-        <div
-          style="
-            text-align: center;
-            padding: 0 20px 20px 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-          "
-        >
-          <button class="btn-print" style="flex: 1" onclick="downloadSlip()">
-            <i class="fa-solid fa-download"></i> Save
-          </button>
+        <div style="text-align: right; margin-top: 20px">
           <button
-            onclick="
-              document.getElementById('slipModal').style.display = 'none'
-            "
+            onclick="closeModal()"
             style="
-              flex: 1;
-              background: #f0f0f0;
+              padding: 10px 20px;
               border: none;
-              padding: 10px;
-              border-radius: 8px;
+              border-radius: 5px;
               cursor: pointer;
-              font-weight: bold;
-              color: #555;
             "
           >
-            Close
+            Cancel
           </button>
-        </div>
-      </div>
-    </div>
-
-    <div id="trxResultModal" class="slip-overlay">
-      <div class="slip-box" style="width: 450px">
-        <div
-          style="
-            background: #fff;
-            padding: 20px 25px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <h3
-            style="
-              margin: 0;
-              color: #004d40;
-              display: flex;
-              align-items: center;
-              gap: 10px;
-            "
-          >
-            <i class="fa-solid fa-file-invoice"></i> Transaction Details
-          </h3>
-          <div
-            style="
-              background: #f0f0f0;
-              width: 30px;
-              height: 30px;
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              cursor: pointer;
-            "
-            onclick="
-              document.getElementById('trxResultModal').style.display = 'none'
-            "
-          >
-            <i class="fa-solid fa-xmark" style="color: #555"></i>
-          </div>
-        </div>
-
-        <div id="trxResultContent" style="padding: 0"></div>
-
-        <div style="padding: 20px; background: #f9f9f9; text-align: center">
           <button
-            onclick="
-              document.getElementById('trxResultModal').style.display = 'none'
-            "
+            onclick="saveUser()"
             style="
-              background: white;
-              border: 1px solid #ddd;
-              padding: 10px 40px;
-              border-radius: 25px;
+              padding: 10px 20px;
+              background: #004d40;
+              color: white;
+              border: none;
+              border-radius: 5px;
               cursor: pointer;
-              font-weight: bold;
-              color: #555;
-              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             "
           >
-            Close Details
+            Save
           </button>
         </div>
       </div>
     </div>
 
     <script>
+      // Check Admin Role
+      const currentUser = JSON.parse(localStorage.getItem("user"));
+      if (!currentUser || currentUser.role !== "admin") {
+        // window.location.href = "index.html"; // Uncomment for security
+      }
+
       let allUsers = [];
       let allTrx = [];
 
+      // --- NAVIGATION LOGIC ---
+      function showSection(sectionId, btn) {
+        // Hide all sections
+        document
+          .querySelectorAll(".page-section")
+          .forEach((sec) => sec.classList.remove("active"));
+        document.getElementById(sectionId).classList.add("active");
+
+        // Update sidebar buttons
+        document
+          .querySelectorAll(".menu-btn")
+          .forEach((b) => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+      }
+
+      // --- LOAD DATA ---
       async function loadData() {
         try {
           const res = await fetch("/api/users");
           allUsers = await res.json();
-          processData();
-        } catch (err) {
-          console.error("Using local data");
-          allUsers = [];
-          processData();
+
+          let totalBal = 0;
+          let countOut = 0;
+          let countIn = 0;
+          allTrx = [];
+
+          allUsers.forEach((u) => {
+            totalBal += u.balance || 0;
+            if (u.transactions) {
+              u.transactions.forEach((t) => {
+                allTrx.push({ ...t, senderName: u.username });
+                // Count Stats based on transaction type
+                if (t.type === "Transfer Out" || t.type === "Bill Payment")
+                  countOut++;
+                if (t.type === "Received") countIn++;
+              });
+            }
+          });
+
+          // Update Dashboard Stats
+          document.getElementById("totalUsers").innerText = allUsers.length;
+          document.getElementById("totalMoney").innerText =
+            "$" + totalBal.toFixed(2);
+          document.getElementById("countOut").innerText = countOut; // ចេញប៉ុន្មាន
+          document.getElementById("countIn").innerText = countIn; // ចូលប៉ុន្មាន
+
+          // Render User Table
+          renderUsers(allUsers);
+        } catch (e) {
+          console.error(e);
         }
       }
 
-      function processData() {
-        let totalBalance = 0;
-        allTrx = [];
-        allUsers.forEach((u) => {
-          totalBalance += parseFloat(u.balance || 0);
-          if (u.transactions) {
-            const userTrx = u.transactions.map((t) => ({
-              ...t,
-              sender: u.username,
-              senderAcc: u.accountNumber,
-            }));
-            allTrx = [...allTrx, ...userTrx];
-          }
-        });
-        document.getElementById("totalUsers").innerText = allUsers.length;
-        document.getElementById("totalMoney").innerText =
-          "$ " + totalBalance.toFixed(2);
-        document.getElementById("totalTrx").innerText = allTrx.length;
-        renderTable();
-      }
+      // --- RENDER USERS ---
+      function renderUsers(users) {
+        const tbody = document.getElementById("userTableBody");
+        tbody.innerHTML = "";
 
-      function renderTable() {
-        allTrx.sort((a, b) => new Date(b.date) - new Date(a.date));
-        const tbody = document.getElementById("tableBody");
-        if (allTrx.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: #888;">No transactions found</td></tr>`;
-          return;
-        }
-        let html = "";
-        allTrx.forEach((t) => {
-          const amount = parseFloat(t.amount);
-          const color = amount > 0 ? "#28a745" : "#dc3545";
-          html += `
+        users.forEach((u) => {
+          const isOnline = u.isOnline
+            ? `<span class="badge online">● Online</span>`
+            : `<span class="badge offline">Offline</span>`;
+
+          const statusBadge = u.isFrozen
+            ? `<span class="badge frozen"><i class="fa-solid fa-lock"></i> FROZEN</span>`
+            : `<span class="badge active-user">ACTIVE</span>`;
+
+          const freezeBtn = u.isFrozen
+            ? `<button class="btn-action unfreeze" onclick="toggleFreeze('${u._id}', false)" title="Unfreeze"><i class="fa-solid fa-unlock"></i></button>`
+            : `<button class="btn-action freeze" onclick="toggleFreeze('${u._id}', true)" title="Freeze"><i class="fa-solid fa-lock"></i></button>`;
+
+          const row = `
                     <tr>
-                        <td style="font-family: monospace; color: #555;">${t.refId || "N/A"}</td>
-                        <td class="kh-text" style="font-weight: 600;">${t.sender}</td>
+                        <td style="font-weight:bold">${u.username}</td>
+                        <td style="font-family:monospace">${u.accountNumber}</td>
+                        <td style="color:#004d40; font-weight:bold">$${u.balance.toFixed(2)}</td>
+                        <td>${isOnline}</td>
+                        <td>${statusBadge}</td>
                         <td>
-                            <div style="font-weight:600; color:#333;">${t.type}</div>
-                            <div style="font-size:0.8rem; color:#888;">${t.partner || "-"}</div>
-                        </td>
-                        <td style="color:${color}; font-weight:800;">$${Math.abs(amount).toFixed(2)}</td>
-                        <td style="font-size:0.85rem; color:#666;">${t.date}</td>
-                        <td><span class="status-badge success">Success</span></td>
-                        <td>
-                            <button class="action-btn" onclick='viewSlip(${JSON.stringify(t)})' title="View Slip">
-                                <i class="fa-solid fa-receipt"></i>
-                            </button>
+                            <button class="btn-action edit" onclick="openEdit('${u._id}', '${u.username}', '${u.accountNumber}', ${u.balance}, ${u.isFrozen})"><i class="fa-solid fa-pen"></i></button>
+                            ${freezeBtn}
                         </td>
                     </tr>
                 `;
+          tbody.innerHTML += row;
         });
-        tbody.innerHTML = html;
       }
 
-      function viewSlip(t) {
-        document.getElementById("slipAmount").innerText =
-          "$" + Math.abs(t.amount).toFixed(2);
-        document.getElementById("slipRef").innerText = t.refId || "N/A";
-        document.getElementById("slipSender").innerText = t.sender;
-        document.getElementById("slipReceiver").innerText = t.partner || t.type;
-        document.getElementById("slipDate").innerText = t.date;
-        document.getElementById("slipModal").style.display = "flex";
-      }
-
-      function searchTransaction() {
-        const input = document
-          .getElementById("trxSearchInput")
-          .value.trim()
-          .toUpperCase();
-        if (!input)
-          return Swal.fire({
-            icon: "warning",
-            title: "Please Enter ID",
-            confirmButtonColor: "#004d40",
-          });
-
-        const t = allTrx.find(
-          (x) => x.refId && x.refId.toUpperCase() === input,
+      // --- FILTER USERS ---
+      function filterUsers() {
+        const query = document.getElementById("userSearch").value.trim();
+        const filtered = allUsers.filter((u) =>
+          u.accountNumber.includes(query),
         );
+        renderUsers(filtered);
+      }
 
-        if (t) {
-          // Mock Data for "Pro" Details
-          const randomIP = `103.11.${Math.floor(Math.random() * 99)}.${Math.floor(Math.random() * 255)}`;
-          const device = "iPhone 14 Pro Max";
-          const location = "Phnom Penh, KH";
-          const fee = "$0.00";
-          const isIncome = t.amount > 0;
-          const color = isIncome ? "#00b894" : "#e71d36";
-          const icon = isIncome ? "fa-arrow-down" : "fa-arrow-up";
+      // --- FREEZE / UNFREEZE ---
+      async function toggleFreeze(id, status) {
+        const action = status ? "Freeze (បង្កក)" : "Unfreeze (ដោះសោរ)";
+        const result = await Swal.fire({
+          title: `Confirm ${action}?`,
+          text: status
+            ? "User cannot make transactions."
+            : "User can use account normally.",
+          icon: status ? "warning" : "question",
+          showCancelButton: true,
+          confirmButtonColor: status ? "#d33" : "#28a745",
+        });
 
-          const html = `
-                    <div style="padding: 25px; max-height: 400px; overflow-y: auto;">
-                        <div style="text-align:center; margin-bottom: 25px;">
-                             <div style="width: 60px; height: 60px; background: ${isIncome ? "#e0f2f1" : "#ffebee"}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
-                                <i class="fa-solid ${icon}" style="font-size: 1.5rem; color: ${color};"></i>
-                             </div>
-                             <h1 style="margin:0; font-size: 2rem; color: #333;">${isIncome ? "+" : ""}$${Math.abs(t.amount).toFixed(2)}</h1>
-                             <span class="status-badge success" style="margin-top:8px; display:inline-block;">Completed</span>
-                        </div>
-
-                        <div class="section-title">General Info</div>
-                        <div class="detail-row"><span class="detail-label">Transaction ID</span><span class="detail-val" style="font-family:monospace;">${t.refId}</span></div>
-                        <div class="detail-row"><span class="detail-label">Date & Time</span><span class="detail-val">${t.date}</span></div>
-                        <div class="detail-row"><span class="detail-label">Service Type</span><span class="detail-val">${t.type}</span></div>
-
-                        <div class="divider"></div>
-
-                        <div class="section-title">Sender & Receiver</div>
-                        <div class="detail-row"><span class="detail-label">Sender Name</span><span class="detail-val kh-text">${t.sender}</span></div>
-                        <div class="detail-row"><span class="detail-label">Sender Account</span><span class="detail-val" style="font-family:monospace;">${t.senderAcc || "N/A"}</span></div>
-                        <div class="detail-row" style="margin-top:10px;"><span class="detail-label">Receiver/Biller</span><span class="detail-val kh-text">${t.partner || "Unknown"}</span></div>
-
-                        <div class="divider"></div>
-
-                        <div class="section-title">Technical Details</div>
-                        <div class="detail-row"><span class="detail-label">IP Address</span><span class="detail-val" style="font-family:monospace;">${randomIP}</span></div>
-                        <div class="detail-row"><span class="detail-label">Device</span><span class="detail-val">${device}</span></div>
-                        <div class="detail-row"><span class="detail-label">Location</span><span class="detail-val">${location}</span></div>
-                        <div class="detail-row"><span class="detail-label">Fee</span><span class="detail-val">${fee}</span></div>
-                    </div>
-                `;
-
-          document.getElementById("trxResultContent").innerHTML = html;
-          document.getElementById("trxResultModal").style.display = "flex";
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Not Found",
-            text: "Transaction ID does not exist in the system.",
-            confirmButtonColor: "#004d40",
+        if (result.isConfirmed) {
+          const user = allUsers.find((u) => u._id === id);
+          await fetch("/api/admin/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: user._id,
+              username: user.username,
+              balance: user.balance,
+              accountNumber: user.accountNumber,
+              isFrozen: status,
+            }),
           });
+          loadData();
+          Swal.fire("Success", `Account has been ${action}d.`, "success");
         }
       }
 
-      function downloadSlip() {
-        html2canvas(document.getElementById("captureArea"), { scale: 2 }).then(
-          (canvas) => {
-            const link = document.createElement("a");
-            link.download = `Slip.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-          },
-        );
+      // --- EDIT USER ---
+      function openEdit(id, name, acc, bal, frozen) {
+        document.getElementById("editId").value = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editAcc").value = acc;
+        document.getElementById("editBal").value = bal;
+        document.getElementById("editFrozen").value = frozen;
+        document.getElementById("editModal").style.display = "flex";
+      }
+      function closeModal() {
+        document.getElementById("editModal").style.display = "none";
       }
 
+      async function saveUser() {
+        const id = document.getElementById("editId").value;
+        const username = document.getElementById("editName").value;
+        const balance = document.getElementById("editBal").value;
+        const accountNumber = document.getElementById("editAcc").value;
+        const isFrozen = document.getElementById("editFrozen").value === "true";
+
+        await fetch("/api/admin/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id,
+            username,
+            balance,
+            accountNumber,
+            isFrozen,
+          }),
+        });
+        closeModal();
+        loadData();
+        Swal.fire("Saved", "User updated successfully", "success");
+      }
+
+      // --- TRANSACTION SEARCH ---
+      function searchTrx() {
+        const id = document.getElementById("trxInput").value.trim();
+        const resultDiv = document.getElementById("trxResult");
+
+        if (!id) return;
+        const t = allTrx.find((x) => x.refId === id);
+
+        resultDiv.style.display = "block";
+        if (t) {
+          resultDiv.innerHTML = `
+                    <div style="background:#e0f2f1; padding:20px; border-radius:10px; border-left: 5px solid #004d40;">
+                        <h3 style="margin:0 0 10px 0; color:#004d40;">Transaction Found!</h3>
+                        <p><strong>Ref ID:</strong> ${t.refId}</p>
+                        <p><strong>Sender:</strong> ${t.senderName}</p>
+                        <p><strong>Receiver/Type:</strong> ${t.partner || t.type}</p>
+                        <p><strong>Amount:</strong> <b style="font-size:1.2rem">$${Math.abs(t.amount).toFixed(2)}</b></p>
+                        <p><strong>Date:</strong> ${t.date}</p>
+                        <span class="badge active-user">SUCCESS</span>
+                    </div>
+                `;
+        } else {
+          resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">❌ Transaction ID not found.</p>`;
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("user");
+        window.location.href = "index.html";
+      }
+
+      // Start
       loadData();
     </script>
   </body>
