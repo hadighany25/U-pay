@@ -570,7 +570,15 @@
       let currentUser = JSON.parse(localUserStr);
       updateUI(currentUser); // បង្ហាញទិន្នន័យពី LocalStorage សិន
       fetchLatestData(); // ទាញទិន្នន័យថ្មីពី Server
-
+      if (currentUser) {
+        setInterval(() => {
+          fetch("/api/heartbeat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: currentUser.username }),
+          });
+        }, 5000);
+      }
       // [ថែម] Update Greeting Time
       updateGreetingTime();
 
